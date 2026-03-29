@@ -1,0 +1,155 @@
+[project]
+name = "zerofilesystem"
+dynamic = ["version"]
+description = "Cross-platform file system utilities for Python"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [{name = "Francesco Favi", email = "14098835+francescofavi@users.noreply.github.com"}]
+keywords = ["filesystem", "files", "io", "cross-platform", "utilities", "pathlib"]
+dependencies = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/francescofavi/zerofilesystem"
+Repository = "https://github.com/francescofavi/zerofilesystem"
+Issues = "https://github.com/francescofavi/zerofilesystem/issues"
+Documentation = "https://github.com/francescofavi/zerofilesystem#readme"
+Changelog = "https://github.com/francescofavi/zerofilesystem/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/zerofilesystem"]
+
+[tool.hatch.version]
+path = "src/zerofilesystem/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.idea/**",
+    "/dist/**",
+    "/.check_quality.py",
+    "/.setup.bat",
+    "/.setup.sh",
+    "/.run.sh",
+    "/.pre-commit-config.yaml",
+    "/.python-version",
+    "/.coverage",
+    "/scripts/**",
+    "/GITHUB_PUBLISHING.md",
+    "/PYPI_PUBLISHING.md",
+    "/release-please-config.json",
+    "/.release-please-manifest.json",
+    "/uv.lock",
+    "/tests/**",
+]
+
+[tool.uv]
+managed = true
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "pytest-mock>=3.14.0",
+    "ruff>=0.11.8",
+    "mypy>=1.15.0",
+    "bandit>=1.7.10",
+    "vulture>=2.13",
+    "pre-commit>=4.2.0"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [
+    ".venv",
+    ".git",
+    "__pycache__",
+    "*.egg-info",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "dist",
+    "build",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors - PEP 8 style violations
+    "F",  # pyflakes - unused imports, undefined names
+    "W",  # pycodestyle warnings - style warnings
+    "I",  # isort - import sorting
+    "N",  # pep8-naming - naming conventions
+    "UP",  # pyupgrade - use modern Python syntax
+    "B",  # flake8-bugbear - common bugs and design problems
+    "C4",  # flake8-comprehensions - list/dict comprehension improvements
+    "SIM",  # flake8-simplify - code simplification suggestions
+]
+
+ignore = [
+    "E501",  # line-too-long - line length violations (usually disabled)
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict_optional = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+warn_no_return = true
+warn_unreachable = true
+ignore_missing_imports = true
+check_untyped_defs = false
+namespace_packages = true
+explicit_package_bases = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+exclude = [
+    ".venv",
+    ".git",
+    "__pycache__",
+    ".*\\.egg-info",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "dist",
+    "build",
+]
+
+[tool.bandit]
+exclude_dirs = [
+    "tests",
+    ".venv",
+    ".git",
+    "__pycache__",
+    "*.egg-info",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "dist",
+    "build",
+    "examples",
+    "scripts"
+]
+exclude = ["check_quality.py"]
+skips = ["B101","B403","B110"]
+
+[tool.vulture]
+paths = ["src"]
+min_confidence = 80
+ignore_decorators = ["@app.route", "@pytest.fixture"]
+ignore_names = ["setUp", "tearDown", "setUpClass", "tearDownClass"]
