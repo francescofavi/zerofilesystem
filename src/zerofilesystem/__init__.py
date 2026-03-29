@@ -69,7 +69,7 @@ from zerofilesystem.classes import (
 )
 from zerofilesystem.zerofilesystem import ZeroOS
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "Francesco Favi"
 __email__ = "14098835+francescofavi@users.noreply.github.com"
 
