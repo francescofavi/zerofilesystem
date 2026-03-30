@@ -12,7 +12,7 @@ from zerofilesystem.classes.exceptions import (
     SecureDeleteError,
     SyncError,
     TransactionError,
-    ZeroOSError,
+    ZeroFSError,
 )
 from zerofilesystem.classes.file_lock import FileLock
 from zerofilesystem.classes.file_permissions import FilePermissions
@@ -71,7 +71,7 @@ __all__ = [
     "WatchEventType",  # Legacy alias
     "WatchEventOld",  # Legacy alias
     # Exceptions
-    "ZeroOSError",
+    "ZeroFSError",
     "FileLockedError",
     "InvalidPathError",
     "HashMismatchError",

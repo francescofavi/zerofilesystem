@@ -32,6 +32,7 @@ Copyright (c) 2025 Francesco Favi
 License: MIT
 """
 
+from zerofilesystem._core import ZeroFS
 from zerofilesystem._platform import IS_LINUX, IS_MACOS, IS_UNIX, IS_WINDOWS, Pathish
 from zerofilesystem.classes import (
     ArchiveError,
@@ -65,9 +66,8 @@ from zerofilesystem.classes import (
     TransactionError,
     Watcher,
     WatchEvent,
-    ZeroOSError,
+    ZeroFSError,
 )
-from zerofilesystem.zerofilesystem import ZeroOS
 
 __version__ = "0.1.2"
 __author__ = "Francesco Favi"
@@ -218,7 +218,7 @@ list_archive = ArchiveHandler.list_archive
 
 __all__ = [
     # Facade class
-    "ZeroOS",
+    "ZeroFS",
     # Platform constants
     "IS_WINDOWS",
     "IS_MACOS",
@@ -234,7 +234,7 @@ __all__ = [
     "FileTransaction",
     "FileWatcher",  # Legacy
     # Exceptions
-    "ZeroOSError",
+    "ZeroFSError",
     "FileLockedError",
     "InvalidPathError",
     "HashMismatchError",

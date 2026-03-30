@@ -15,7 +15,7 @@ Covers the source code under `src/zerofilesystem/`. Excludes tests, examples, sc
 ```
 src/zerofilesystem/
 ├── __init__.py            # Package entry point, flat function exports, __all__
-├── zerofilesystem.py              # ZeroOS facade class (all methods as static)
+├── _core.py              # ZeroFS facade class (all methods as static)
 ├── _platform.py           # Platform detection constants, Pathish type alias
 └── classes/
     ├── __init__.py         # Re-exports all public classes and exceptions
@@ -60,15 +60,15 @@ write_text = FileIO.write_text
 
 This is the recommended usage. All public functions are listed in `__all__`.
 
-### Layer 2: ZeroOS Facade Class
+### Layer 2: ZeroFS Facade Class
 
 ```python
-from zerofilesystem import ZeroOS
-zo = ZeroOS()
+from zerofilesystem import ZeroFS
+zo = ZeroFS()
 zfs.write_text("file.txt", "content")
 ```
 
-Defined in `zerofilesystem.py`. All methods are `@staticmethod`, delegating to the corresponding class methods. Provides a single-object interface for IDE discoverability.
+Defined in `_core.py`. All methods are `@staticmethod`, delegating to the corresponding class methods. Provides a single-object interface for IDE discoverability.
 
 ### Layer 3: Direct Class Access
 
@@ -88,7 +88,7 @@ Direct access to the implementation classes. Useful when only a specific feature
 | Module | Classes | LOC | Responsibility |
 |--------|---------|-----|----------------|
 | `_platform.py` | — | 13 | Platform detection (`IS_WINDOWS`, `IS_MACOS`, etc.), `Pathish` type alias |
-| `exceptions.py` | 9 exceptions | 164 | Exception hierarchy rooted at `ZeroOSError` |
+| `exceptions.py` | 9 exceptions | 164 | Exception hierarchy rooted at `ZeroFSError` |
 | `_internal.py` | — | 107 | Shared constants (`HASH_CHUNK_SIZE`, `SIZE_UNITS`), utility functions (`parse_size`, `parse_datetime`, `is_hidden`) |
 
 ### Feature Modules
@@ -115,7 +115,7 @@ Direct access to the implementation classes. Useful when only a specific feature
 Internal module dependencies (arrows indicate "depends on"):
 
 ```
-__init__.py ──> zerofilesystem.py ──> classes/*
+__init__.py ──> _core.py ──> classes/*
                                │
 _platform.py <─────────────────┤ (used by all modules)
                                │
@@ -207,12 +207,12 @@ Platform-specific code is isolated:
 
 ### Exported in `__all__` (zerofilesystem package)
 
-- **1 facade class**: `ZeroOS`
+- **1 facade class**: `ZeroFS`
 - **4 platform constants**: `IS_WINDOWS`, `IS_MACOS`, `IS_LINUX`, `IS_UNIX`
 - **1 type alias**: `Pathish`
 - **3 stateful classes**: `Finder`, `Watcher`, `FileLock`, `FileTransaction`, `FileWatcher` (legacy)
 - **2 data types**: `WatchEvent`, `EventType`
-- **9 exceptions**: `ZeroOSError` + 8 subclasses
+- **9 exceptions**: `ZeroFSError` + 8 subclasses
 - **56 flat functions**: covering I/O, JSON, gzip, discovery, cleanup, sync, hash, metadata, utils, paths, permissions, directories, integrity, security, archives
 
 ### Internal (not exported)
@@ -238,10 +238,10 @@ Platform-specific code is isolated:
 
 ## 8. Error Handling Strategy
 
-All custom exceptions inherit from `ZeroOSError`, which carries optional `path`, `operation`, and `cause` fields:
+All custom exceptions inherit from `ZeroFSError`, which carries optional `path`, `operation`, and `cause` fields:
 
 ```
-ZeroOSError
+ZeroFSError
 ├── FileLockedError
 ├── InvalidPathError
 ├── HashMismatchError

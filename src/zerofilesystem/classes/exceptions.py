@@ -7,7 +7,7 @@ from pathlib import Path
 from zerofilesystem._platform import Pathish
 
 
-class ZeroOSError(Exception):
+class ZeroFSError(Exception):
     """Base exception for all zerofilesystem errors."""
 
     def __init__(
@@ -32,7 +32,7 @@ class ZeroOSError(Exception):
         super().__init__(" | ".join(parts))
 
 
-class FileLockedError(ZeroOSError):
+class FileLockedError(ZeroFSError):
     """Raised when a file is locked by another process."""
 
     def __init__(
@@ -48,7 +48,7 @@ class FileLockedError(ZeroOSError):
         super().__init__(msg, path=path, operation="lock", cause=cause)
 
 
-class InvalidPathError(ZeroOSError):
+class InvalidPathError(ZeroFSError):
     """Raised when a path is invalid or doesn't exist when required."""
 
     def __init__(
@@ -61,7 +61,7 @@ class InvalidPathError(ZeroOSError):
         super().__init__(reason, path=path, operation=operation)
 
 
-class HashMismatchError(ZeroOSError):
+class HashMismatchError(ZeroFSError):
     """Raised when file hash doesn't match expected value."""
 
     def __init__(
@@ -78,7 +78,7 @@ class HashMismatchError(ZeroOSError):
         super().__init__(msg, path=path, operation="verify")
 
 
-class IntegrityError(ZeroOSError):
+class IntegrityError(ZeroFSError):
     """Raised when integrity verification fails."""
 
     def __init__(
@@ -94,7 +94,7 @@ class IntegrityError(ZeroOSError):
         super().__init__(message, operation="integrity_check")
 
 
-class TransactionError(ZeroOSError):
+class TransactionError(ZeroFSError):
     """Raised when a file transaction fails."""
 
     def __init__(
@@ -109,7 +109,7 @@ class TransactionError(ZeroOSError):
         super().__init__(message, path=path, operation=operation, cause=cause)
 
 
-class ArchiveError(ZeroOSError):
+class ArchiveError(ZeroFSError):
     """Raised when archive operations fail."""
 
     def __init__(
@@ -125,7 +125,7 @@ class ArchiveError(ZeroOSError):
         )
 
 
-class PermissionDeniedError(ZeroOSError):
+class PermissionDeniedError(ZeroFSError):
     """Raised when permission is denied for an operation."""
 
     def __init__(
@@ -137,7 +137,7 @@ class PermissionDeniedError(ZeroOSError):
         super().__init__("Permission denied", path=path, operation=operation, cause=cause)
 
 
-class SecureDeleteError(ZeroOSError):
+class SecureDeleteError(ZeroFSError):
     """Raised when secure deletion fails."""
 
     def __init__(
@@ -149,7 +149,7 @@ class SecureDeleteError(ZeroOSError):
         super().__init__(reason, path=path, operation="secure_delete", cause=cause)
 
 
-class SyncError(ZeroOSError):
+class SyncError(ZeroFSError):
     """Raised when directory sync/mirror operations fail."""
 
     def __init__(

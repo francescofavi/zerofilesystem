@@ -1,4 +1,4 @@
-"""ZeroOS - Cross-platform file system utilities facade class."""
+"""ZeroFS - Cross-platform file system utilities facade class."""
 
 from __future__ import annotations
 
@@ -34,13 +34,13 @@ from zerofilesystem.classes.file_permissions import FileMetadata
 from zerofilesystem.classes.integrity_checker import ManifestEntry, VerificationResult
 
 
-class ZeroOS:
+class ZeroFS:
     """Cross-platform file system utilities - facade class.
 
     Provides a unified interface to all zerofilesystem functionality.
 
     Example:
-        zo = ZeroOS()
+        zo = ZeroFS()
         zfs.write_text("file.txt", "Hello World")
         content = zfs.read_text("file.txt")
     """
