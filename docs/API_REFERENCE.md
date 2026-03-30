@@ -2213,10 +2213,10 @@ except KeyboardInterrupt:
 
 ## Exceptions
 
-All custom exceptions inherit from `ZeroOSError`:
+All custom exceptions inherit from `ZeroFSError`:
 
 ```python
-class ZeroOSError(Exception):
+class ZeroFSError(Exception):
     path: Path | None
     operation: str | None
     cause: Exception | None
