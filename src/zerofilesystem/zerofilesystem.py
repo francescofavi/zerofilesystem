@@ -41,8 +41,8 @@ class ZeroOS:
 
     Example:
         zo = ZeroOS()
-        zo.write_text("file.txt", "Hello World")
-        content = zo.read_text("file.txt")
+        zfs.write_text("file.txt", "Hello World")
+        content = zfs.read_text("file.txt")
     """
 
     # Platform constants

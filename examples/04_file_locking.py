@@ -13,7 +13,7 @@ import threading
 import time
 from pathlib import Path
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 def main() -> None:
@@ -29,7 +29,7 @@ def main() -> None:
         lock_file = tmp_path / "my.lock"
 
         # Using context manager (recommended)
-        with zo.FileLock(lock_file):
+        with zfs.FileLock(lock_file):
             print("Lock acquired!")
             print("Performing protected operation...")
             time.sleep(0.1)
@@ -43,7 +43,7 @@ def main() -> None:
 
         print("=== Manual Acquire/Release ===\n")
 
-        lock = zo.FileLock(lock_file)
+        lock = zfs.FileLock(lock_file)
 
         lock.acquire()
         print("Lock manually acquired")
@@ -62,7 +62,7 @@ def main() -> None:
 
         # Try to acquire with a timeout
         try:
-            with zo.FileLock(lock_file, timeout=1.0):
+            with zfs.FileLock(lock_file, timeout=1.0):
                 print("Acquired lock within timeout!")
         except TimeoutError:
             print("Could not acquire lock within timeout")
@@ -83,7 +83,7 @@ def main() -> None:
             """Safely increment counter using file lock."""
             for _ in range(iterations):
                 try:
-                    with zo.FileLock(counter_lock, timeout=5.0):
+                    with zfs.FileLock(counter_lock, timeout=5.0):
                         # Read current value
                         current = int(counter_file.read_text())
                         # Simulate some processing time
@@ -139,22 +139,22 @@ def main() -> None:
 
         def safe_update_config(key: str, value: str) -> None:
             """Safely update config file with locking."""
-            with zo.FileLock(config_lock, timeout=5.0):
+            with zfs.FileLock(config_lock, timeout=5.0):
                 # Read current config or create empty
-                config = zo.read_json(config_file) if config_file.exists() else {}
+                config = zfs.read_json(config_file) if config_file.exists() else {}
 
                 # Update
                 config[key] = value
 
                 # Write back
-                zo.write_json(config_file, config)
+                zfs.write_json(config_file, config)
 
         # Multiple updates
         safe_update_config("setting1", "value1")
         safe_update_config("setting2", "value2")
         safe_update_config("setting3", "value3")
 
-        print(f"Final config: {zo.read_json(config_file)}")
+        print(f"Final config: {zfs.read_json(config_file)}")
 
         # =========================================================================
         # LOCK FILE CLEANUP
@@ -166,7 +166,7 @@ def main() -> None:
 
         print(f"Lock file exists before: {test_lock.exists()}")
 
-        with zo.FileLock(test_lock):
+        with zfs.FileLock(test_lock):
             print(f"Lock file exists during: {test_lock.exists()}")
 
         print(f"Lock file exists after: {test_lock.exists()}")

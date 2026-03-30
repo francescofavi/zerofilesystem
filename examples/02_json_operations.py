@@ -11,7 +11,7 @@ This example demonstrates:
 import tempfile
 from pathlib import Path
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 def main() -> None:
@@ -32,11 +32,11 @@ def main() -> None:
             "debug": True,
             "max_connections": 100,
         }
-        zo.write_json(config_file, config)
+        zfs.write_json(config_file, config)
         print(f"Created config file: {config_file}")
 
         # Read it back
-        loaded_config = zo.read_json(config_file)
+        loaded_config = zfs.read_json(config_file)
         print(f"Loaded config: {loaded_config}")
 
         # =========================================================================
@@ -66,11 +66,11 @@ def main() -> None:
                 },
             ],
         }
-        zo.write_json(data_file, users_data)
+        zfs.write_json(data_file, users_data)
         print(f"Created users file: {data_file}")
 
         # Read and access nested data
-        loaded = zo.read_json(data_file)
+        loaded = zfs.read_json(data_file)
         print(f"\nFirst user: {loaded['users'][0]['name']}")
         print(f"Admin roles: {loaded['users'][0]['roles']}")
 
@@ -87,11 +87,11 @@ def main() -> None:
             "zh": {"greeting": "你好", "farewell": "再见"},
             "ar": {"greeting": "مرحبا", "farewell": "مع السلامة"},
         }
-        zo.write_json(i18n_file, translations)
+        zfs.write_json(i18n_file, translations)
         print("Created translations file with unicode support")
 
         # Read and display
-        loaded_translations = zo.read_json(i18n_file)
+        loaded_translations = zfs.read_json(i18n_file)
         for lang, strings in loaded_translations.items():
             print(f"  {lang}: {strings['greeting']}")
 
@@ -108,10 +108,10 @@ def main() -> None:
             {"id": 2, "title": "Write tests", "done": True},
             {"id": 3, "title": "Write docs", "done": False},
         ]
-        zo.write_json(tasks_file, tasks)
+        zfs.write_json(tasks_file, tasks)
         print("Created tasks file (root is array)")
 
-        loaded_tasks = zo.read_json(tasks_file)
+        loaded_tasks = zfs.read_json(tasks_file)
         for task in loaded_tasks:
             status = "done" if task["done"] else "pending"
             print(f"  [{status}] {task['title']}")
@@ -124,17 +124,17 @@ def main() -> None:
 
         # Default is 2 spaces
         default_file = tmp_path / "default_indent.json"
-        zo.write_json(default_file, {"key": "value"})
+        zfs.write_json(default_file, {"key": "value"})
 
         # Use 4 spaces
         four_space_file = tmp_path / "four_space.json"
-        zo.write_json(four_space_file, {"key": "value"}, indent=4)
+        zfs.write_json(four_space_file, {"key": "value"}, indent=4)
 
         print("Default (2 spaces):")
-        print(zo.read_text(default_file))
+        print(zfs.read_text(default_file))
 
         print("\n4-space indent:")
-        print(zo.read_text(four_space_file))
+        print(zfs.read_text(four_space_file))
 
         # =========================================================================
         # UPDATING JSON FILES
@@ -145,15 +145,15 @@ def main() -> None:
         settings_file = tmp_path / "settings.json"
 
         # Create initial settings
-        zo.write_json(settings_file, {"volume": 50, "brightness": 80})
-        print(f"Initial: {zo.read_json(settings_file)}")
+        zfs.write_json(settings_file, {"volume": 50, "brightness": 80})
+        print(f"Initial: {zfs.read_json(settings_file)}")
 
         # Read, modify, write back
-        settings = zo.read_json(settings_file)
+        settings = zfs.read_json(settings_file)
         settings["volume"] = 75
         settings["new_setting"] = "added"
-        zo.write_json(settings_file, settings)
-        print(f"Updated: {zo.read_json(settings_file)}")
+        zfs.write_json(settings_file, settings)
+        print(f"Updated: {zfs.read_json(settings_file)}")
 
         print("\n=== Done! ===")
 

@@ -1,32 +1,32 @@
 """zerofilesystem - Cross-platform file system utilities.
 
 Usage:
-    import zerofilesystem as zo
+    import zerofilesystem as zfs
 
     # Read/write files
-    zo.write_text("file.txt", "Hello World")
-    content = zo.read_text("file.txt")
+    zfs.write_text("file.txt", "Hello World")
+    content = zfs.read_text("file.txt")
 
     # JSON operations
-    zo.write_json("data.json", {"key": "value"})
-    data = zo.read_json("data.json")
+    zfs.write_json("data.json", {"key": "value"})
+    data = zfs.read_json("data.json")
 
     # Find files
-    py_files = zo.find_files(".", pattern="**/*.py")
+    py_files = zfs.find_files(".", pattern="**/*.py")
 
     # File locking
-    with zo.FileLock("/tmp/my.lock"):
+    with zfs.FileLock("/tmp/my.lock"):
         # Critical section
         pass
 
     # Transactions
-    with zo.FileTransaction() as tx:
+    with zfs.FileTransaction() as tx:
         tx.write_text("file1.txt", "content1")
         tx.write_text("file2.txt", "content2")
 
     # Archives
-    zo.create_zip("./src", "backup.zip")
-    zo.extract("backup.zip", "./extracted")
+    zfs.create_zip("./src", "backup.zip")
+    zfs.extract("backup.zip", "./extracted")
 
 Copyright (c) 2025 Francesco Favi
 License: MIT

@@ -11,7 +11,7 @@ This example demonstrates:
 import tempfile
 from pathlib import Path
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 def main() -> None:
@@ -28,7 +28,7 @@ def main() -> None:
         file2 = tmp_path / "file2.txt"
 
         # Write multiple files atomically
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_text(file1, "Content for file 1")
             tx.write_text(file2, "Content for file 2")
             # Commit happens automatically on successful exit
@@ -54,7 +54,7 @@ def main() -> None:
         print(f"  File 2: {rollback_file2.read_text()}")
 
         try:
-            with zo.FileTransaction() as tx:
+            with zfs.FileTransaction() as tx:
                 tx.write_text(rollback_file1, "Modified 1")
                 tx.write_text(rollback_file2, "Modified 2")
                 # Simulate an error
@@ -78,7 +78,7 @@ def main() -> None:
         print(f"File exists before: {new_file.exists()}")
 
         try:
-            with zo.FileTransaction() as tx:
+            with zfs.FileTransaction() as tx:
                 tx.write_text(new_file, "New content")
                 print(f"File would be created: {new_file}")
                 raise ValueError("Abort!")
@@ -96,7 +96,7 @@ def main() -> None:
 
         explicit_file = tmp_path / "explicit.txt"
 
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.write_text(explicit_file, "Explicitly committed content")
 
         print("Changes are staged but not committed yet...")
@@ -111,7 +111,7 @@ def main() -> None:
 
         explicit_file2 = tmp_path / "explicit2.txt"
 
-        tx2 = zo.FileTransaction()
+        tx2 = zfs.FileTransaction()
         tx2.write_text(explicit_file2, "This will be rolled back")
         tx2.rollback()
 
@@ -130,7 +130,7 @@ def main() -> None:
         print(f"Content: {to_delete.read_text()}")
 
         try:
-            with zo.FileTransaction() as tx:
+            with zfs.FileTransaction() as tx:
                 tx.delete_file(to_delete)
                 print("File scheduled for deletion...")
                 raise ValueError("Oops, changed my mind!")
@@ -150,7 +150,7 @@ def main() -> None:
         dest = tmp_path / "destination.txt"
         source.write_text("Source content to copy")
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.copy_file(source, dest)
 
         print(f"Source: {source.read_text()}")
@@ -169,22 +169,22 @@ def main() -> None:
         schema = tmp_path / "schema.json"
 
         # Initial state
-        zo.write_json(config, {"version": 1})
-        zo.write_json(data, {"users": []})
-        zo.write_json(schema, {"fields": ["id", "name"]})
+        zfs.write_json(config, {"version": 1})
+        zfs.write_json(data, {"users": []})
+        zfs.write_json(schema, {"fields": ["id", "name"]})
 
         print("Before migration:")
-        print(f"  Config: {zo.read_json(config)}")
-        print(f"  Data: {zo.read_json(data)}")
-        print(f"  Schema: {zo.read_json(schema)}")
+        print(f"  Config: {zfs.read_json(config)}")
+        print(f"  Data: {zfs.read_json(data)}")
+        print(f"  Schema: {zfs.read_json(schema)}")
 
         # Migrate atomically
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             # Update all files together
-            tx.write_text(config, zo.read_text(config).replace('"version": 1', '"version": 2'))
-            new_data = zo.read_json(data)
+            tx.write_text(config, zfs.read_text(config).replace('"version": 1', '"version": 2'))
+            new_data = zfs.read_json(data)
             new_data["users"].append({"id": 1, "name": "Alice"})
-            zo.write_json(data, new_data)  # This writes directly, not in transaction!
+            zfs.write_json(data, new_data)  # This writes directly, not in transaction!
 
             # Better approach: use transaction for all files
             tx.write_text(
@@ -193,9 +193,9 @@ def main() -> None:
             )
 
         print("\nAfter migration:")
-        print(f"  Config: {zo.read_json(config)}")
-        print(f"  Data: {zo.read_json(data)}")
-        print(f"  Schema: {zo.read_json(schema)}")
+        print(f"  Config: {zfs.read_json(config)}")
+        print(f"  Data: {zfs.read_json(data)}")
+        print(f"  Schema: {zfs.read_json(schema)}")
 
         print("\n=== Done! ===")
 

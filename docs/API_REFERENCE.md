@@ -48,12 +48,12 @@ Pathish = str | Path
 ### Platform Constants
 
 ```python
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
-zo.IS_WINDOWS  # True on Windows
-zo.IS_MACOS    # True on macOS
-zo.IS_LINUX    # True on Linux
-zo.IS_UNIX     # True on macOS or Linux
+zfs.IS_WINDOWS  # True on Windows
+zfs.IS_MACOS    # True on macOS
+zfs.IS_LINUX    # True on Linux
+zfs.IS_UNIX     # True on macOS or Linux
 ```
 
 ### Atomic Operations
@@ -88,14 +88,14 @@ Read entire text file contents.
 
 ```python
 # Basic usage
-content = zo.read_text("config.txt")
+content = zfs.read_text("config.txt")
 
 # With specific encoding
-content = zo.read_text("legacy.txt", encoding="latin-1")
+content = zfs.read_text("legacy.txt", encoding="latin-1")
 
 # Read from Path object
 from pathlib import Path
-content = zo.read_text(Path.home() / "document.txt")
+content = zfs.read_text(Path.home() / "document.txt")
 ```
 
 ---
@@ -129,16 +129,16 @@ Write text to file with atomic write support.
 
 ```python
 # Basic atomic write
-zo.write_text("output.txt", "Hello World")
+zfs.write_text("output.txt", "Hello World")
 
 # Write without creating directories (must exist)
-zo.write_text("existing_dir/file.txt", content, create_dirs=False)
+zfs.write_text("existing_dir/file.txt", content, create_dirs=False)
 
 # Non-atomic write for performance (less safe)
-zo.write_text("temp.txt", data, atomic=False)
+zfs.write_text("temp.txt", data, atomic=False)
 
 # UTF-16 encoding
-zo.write_text("unicode.txt", text, encoding="utf-16")
+zfs.write_text("unicode.txt", text, encoding="utf-16")
 ```
 
 ---
@@ -162,10 +162,10 @@ Read entire binary file contents.
 
 ```python
 # Read binary file
-data = zo.read_bytes("image.png")
+data = zfs.read_bytes("image.png")
 
 # Read and process
-content = zo.read_bytes("archive.bin")
+content = zfs.read_bytes("archive.bin")
 checksum = hashlib.md5(content).hexdigest()
 ```
 
@@ -196,10 +196,10 @@ Write binary data to file with atomic write support.
 
 ```python
 # Write binary data
-zo.write_bytes("output.bin", b"\x00\x01\x02\x03")
+zfs.write_bytes("output.bin", b"\x00\x01\x02\x03")
 
 # Write downloaded content
-zo.write_bytes("download/file.zip", response.content)
+zfs.write_bytes("download/file.zip", response.content)
 ```
 
 ---
@@ -228,11 +228,11 @@ Read and parse JSON file.
 
 ```python
 # Read configuration
-config = zo.read_json("settings.json")
+config = zfs.read_json("settings.json")
 db_host = config["database"]["host"]
 
 # Read list data
-users = zo.read_json("users.json")
+users = zfs.read_json("users.json")
 for user in users:
     print(user["name"])
 ```
@@ -269,13 +269,13 @@ Write object as JSON file.
 
 ```python
 # Write configuration
-zo.write_json("config.json", {"debug": True, "port": 8080})
+zfs.write_json("config.json", {"debug": True, "port": 8080})
 
 # Write with custom indent
-zo.write_json("data.json", large_object, indent=4)
+zfs.write_json("data.json", large_object, indent=4)
 
 # Compact JSON (no indent)
-zo.write_json("compact.json", data, indent=0)
+zfs.write_json("compact.json", data, indent=0)
 ```
 
 ---
@@ -307,13 +307,13 @@ Compress file to gzip format.
 
 ```python
 # Default compression
-zo.gzip_compress("data.txt")  # Creates data.txt.gz
+zfs.gzip_compress("data.txt")  # Creates data.txt.gz
 
 # Custom destination
-zo.gzip_compress("log.txt", "archive/log.gz")
+zfs.gzip_compress("log.txt", "archive/log.gz")
 
 # Maximum compression
-zo.gzip_compress("large.csv", level=9)
+zfs.gzip_compress("large.csv", level=9)
 ```
 
 ---
@@ -341,10 +341,10 @@ Decompress gzip file.
 
 ```python
 # Default decompression
-zo.gzip_decompress("data.txt.gz")  # Creates data.txt
+zfs.gzip_decompress("data.txt.gz")  # Creates data.txt
 
 # Custom destination
-zo.gzip_decompress("archive.gz", "output/data.txt")
+zfs.gzip_decompress("archive.gz", "output/data.txt")
 ```
 
 ---
@@ -380,26 +380,26 @@ Find files matching glob pattern with optional custom filter.
 
 ```python
 # All Python files
-py_files = zo.find_files("./src", pattern="*.py")
+py_files = zfs.find_files("./src", pattern="*.py")
 
 # Non-recursive search
-top_level = zo.find_files("./", pattern="*.txt", recursive=False)
+top_level = zfs.find_files("./", pattern="*.txt", recursive=False)
 
 # Custom filter: files larger than 1MB
-large_files = zo.find_files(
+large_files = zfs.find_files(
     "./data",
     filter_fn=lambda p: p.stat().st_size > 1024 * 1024
 )
 
 # Combine pattern and filter
-test_files = zo.find_files(
+test_files = zfs.find_files(
     "./tests",
     pattern="test_*.py",
     filter_fn=lambda p: "integration" not in p.name
 )
 
 # Limit results
-first_10 = zo.find_files("./logs", pattern="*.log", max_results=10)
+first_10 = zfs.find_files("./logs", pattern="*.log", max_results=10)
 ```
 
 ---
@@ -426,11 +426,11 @@ Generator version of `find_files` for memory efficiency.
 
 ```python
 # Process large directory without loading all paths
-for path in zo.walk_files("/var/log", pattern="*.log"):
+for path in zfs.walk_files("/var/log", pattern="*.log"):
     process_log(path)
 
 # Count files without building list
-count = sum(1 for _ in zo.walk_files("./data"))
+count = sum(1 for _ in zfs.walk_files("./data"))
 ```
 
 ---
@@ -455,8 +455,8 @@ Check if file or directory is hidden.
 **Examples:**
 
 ```python
-zo.is_hidden(".gitignore")  # True on Unix
-zo.is_hidden("normal.txt")  # False
+zfs.is_hidden(".gitignore")  # True on Unix
+zfs.is_hidden("normal.txt")  # False
 ```
 
 ---
@@ -775,18 +775,18 @@ Cross-platform advisory file lock using `fcntl` (Unix) or `msvcrt` (Windows).
 
 ```python
 # Blocking lock
-with zo.FileLock("/tmp/myapp.lock"):
+with zfs.FileLock("/tmp/myapp.lock"):
     do_exclusive_work()
 
 # With timeout
 try:
-    with zo.FileLock("/tmp/myapp.lock", timeout=5.0):
+    with zfs.FileLock("/tmp/myapp.lock", timeout=5.0):
         do_work()
 except TimeoutError:
     print("Lock busy")
 
 # Manual control
-lock = zo.FileLock("/tmp/task.lock")
+lock = zfs.FileLock("/tmp/task.lock")
 lock.acquire()
 try:
     do_work()
@@ -823,16 +823,16 @@ Compute file hash using streaming (memory efficient).
 
 ```python
 # SHA-256 hash
-sha = zo.file_hash("document.pdf")
+sha = zfs.file_hash("document.pdf")
 
 # MD5 for compatibility
-md5 = zo.file_hash("file.zip", algo="md5")
+md5 = zfs.file_hash("file.zip", algo="md5")
 
 # With progress
 def show_progress(done, total):
     print(f"\r{done * 100 // total}%", end="")
 
-hash_val = zo.file_hash("large.iso", progress_callback=show_progress)
+hash_val = zfs.file_hash("large.iso", progress_callback=show_progress)
 ```
 
 ---
@@ -855,7 +855,7 @@ Create directory and parents if not exists.
 **Examples:**
 
 ```python
-zo.ensure_dir("output/reports/2024")
+zfs.ensure_dir("output/reports/2024")
 ```
 
 ---
@@ -877,8 +877,8 @@ Create empty file (and parent directories).
 **Examples:**
 
 ```python
-zo.touch("logs/app.log")
-zo.touch("marker.txt", exist_ok=False)  # Raises if exists
+zfs.touch("logs/app.log")
+zfs.touch("marker.txt", exist_ok=False)  # Raises if exists
 ```
 
 ---
@@ -914,7 +914,7 @@ Get disk usage for filesystem containing path.
 **Examples:**
 
 ```python
-total, used, free = zo.disk_usage("/home")
+total, used, free = zfs.disk_usage("/home")
 print(f"Free space: {free // (1024**3)} GB")
 ```
 
@@ -944,9 +944,9 @@ Sanitize filename by removing/replacing illegal characters.
 **Examples:**
 
 ```python
-zo.safe_filename("file:name*.txt")  # "file_name_.txt"
-zo.safe_filename("CON.txt")         # "_CON.txt" on Windows
-zo.safe_filename("my/path/file")    # "my_path_file"
+zfs.safe_filename("file:name*.txt")  # "file_name_.txt"
+zfs.safe_filename("CON.txt")         # "_CON.txt" on Windows
+zfs.safe_filename("my/path/file")    # "my_path_file"
 ```
 
 ---
@@ -975,11 +975,11 @@ Context manager for atomic file writes.
 
 ```python
 # Text file
-with zo.atomic_write("config.json") as f:
+with zfs.atomic_write("config.json") as f:
     json.dump(data, f)
 
 # Binary file
-with zo.atomic_write("data.bin", mode="wb") as f:
+with zfs.atomic_write("data.bin", mode="wb") as f:
     f.write(binary_data)
 ```
 
@@ -998,7 +998,7 @@ Normalize path by resolving `.` and `..` components.
 **Examples:**
 
 ```python
-zo.normalize_path("./foo/../bar/./baz")  # Path("bar/baz")
+zfs.normalize_path("./foo/../bar/./baz")  # Path("bar/baz")
 ```
 
 ---
@@ -1018,8 +1018,8 @@ Convert to absolute path.
 **Examples:**
 
 ```python
-zo.to_absolute("file.txt")  # /current/working/dir/file.txt
-zo.to_absolute("file.txt", base="/home/user")  # /home/user/file.txt
+zfs.to_absolute("file.txt")  # /current/working/dir/file.txt
+zfs.to_absolute("file.txt", base="/home/user")  # /home/user/file.txt
 ```
 
 ---
@@ -1039,7 +1039,7 @@ Convert to relative path.
 **Examples:**
 
 ```python
-zo.to_relative("/home/user/docs/file.txt", base="/home/user")  # docs/file.txt
+zfs.to_relative("/home/user/docs/file.txt", base="/home/user")  # docs/file.txt
 ```
 
 ---
@@ -1055,7 +1055,7 @@ Convert path to POSIX format (forward slashes).
 **Examples:**
 
 ```python
-zo.to_posix("C:\\Users\\foo\\bar")  # "C:/Users/foo/bar"
+zfs.to_posix("C:\\Users\\foo\\bar")  # "C:/Users/foo/bar"
 ```
 
 ---
@@ -1071,9 +1071,9 @@ Expand `~` and environment variables.
 **Examples:**
 
 ```python
-zo.expand_path("~/documents")      # /home/user/documents
-zo.expand_path("$HOME/docs")       # /home/user/docs
-zo.expand_path("~/docs/$PROJECT")  # Both expanded
+zfs.expand_path("~/documents")      # /home/user/documents
+zfs.expand_path("$HOME/docs")       # /home/user/docs
+zfs.expand_path("~/docs/$PROJECT")  # Both expanded
 ```
 
 ---
@@ -1089,8 +1089,8 @@ Check if path is under parent directory.
 **Examples:**
 
 ```python
-zo.is_subpath("/foo/bar/baz", "/foo/bar")  # True
-zo.is_subpath("/foo/bar", "/foo/bar/baz")  # False
+zfs.is_subpath("/foo/bar/baz", "/foo/bar")  # True
+zfs.is_subpath("/foo/bar", "/foo/bar/baz")  # False
 ```
 
 ---
@@ -1108,7 +1108,7 @@ Find common ancestor of multiple paths.
 **Examples:**
 
 ```python
-zo.common_path("/home/user/a", "/home/user/b")  # Path("/home/user")
+zfs.common_path("/home/user/a", "/home/user/b")  # Path("/home/user")
 ```
 
 ---
@@ -1137,7 +1137,7 @@ Validate path and return `Path` object.
 **Examples:**
 
 ```python
-path = zo.validate_path("config.json", must_exist=True, must_be_file=True)
+path = zfs.validate_path("config.json", must_exist=True, must_be_file=True)
 ```
 
 ---
@@ -1166,7 +1166,7 @@ Get extended file metadata.
 **Examples:**
 
 ```python
-meta = zo.get_metadata("document.txt")
+meta = zfs.get_metadata("document.txt")
 print(f"Size: {meta.size}, Modified: {meta.modified}")
 print(f"Owner: {meta.owner}, Readonly: {meta.is_readonly}")
 ```
@@ -1220,8 +1220,8 @@ Set permissions using numeric mode.
 **Examples:**
 
 ```python
-zo.set_permissions("script.sh", 0o755)  # rwxr-xr-x
-zo.set_permissions("private.txt", 0o600)  # rw-------
+zfs.set_permissions("script.sh", 0o755)  # rwxr-xr-x
+zfs.set_permissions("private.txt", 0o600)  # rw-------
 ```
 
 ---
@@ -1262,9 +1262,9 @@ Convert between numeric mode and string representation.
 **Examples:**
 
 ```python
-zo.mode_to_string(0o755)  # "rwxr-xr-x"
-zo.string_to_mode("rwxr-xr-x")  # 0o755
-zo.string_to_mode("755")  # 0o755
+zfs.mode_to_string(0o755)  # "rwxr-xr-x"
+zfs.string_to_mode("rwxr-xr-x")  # 0o755
+zfs.string_to_mode("755")  # 0o755
 ```
 
 ---
@@ -1291,14 +1291,14 @@ Delete multiple files with detailed error reporting.
 **Examples:**
 
 ```python
-result = zo.delete_files(["old1.txt", "old2.txt", "missing.txt"])
+result = zfs.delete_files(["old1.txt", "old2.txt", "missing.txt"])
 print(f"Deleted: {len(result['succeeded'])}")
 print(f"Not found: {len(result['not_found'])}")
 print(f"Failed: {len(result['failed'])}")
 
 # Delete files found by pattern
-py_cache = zo.find_files("./src", pattern="*.pyc")
-zo.delete_files(py_cache)
+py_cache = zfs.find_files("./src", pattern="*.pyc")
+zfs.delete_files(py_cache)
 ```
 
 ---
@@ -1321,11 +1321,11 @@ Remove empty directories recursively (bottom-up traversal).
 
 ```python
 # Clean up empty dirs after file deletion
-removed = zo.delete_empty_dirs("./output")
+removed = zfs.delete_empty_dirs("./output")
 print(f"Removed {len(removed)} empty directories")
 
 # Include root directory
-removed = zo.delete_empty_dirs("./temp", remove_root=True)
+removed = zfs.delete_empty_dirs("./temp", remove_root=True)
 ```
 
 ---
@@ -1398,18 +1398,18 @@ Recursively copy directory tree.
 **Examples:**
 
 ```python
-result = zo.copy_tree("./src", "./backup")
+result = zfs.copy_tree("./src", "./backup")
 print(f"Copied: {len(result.copied)}, Errors: {len(result.errors)}")
 
 # Only copy Python files
-result = zo.copy_tree(
+result = zfs.copy_tree(
     "./project",
     "./py_backup",
     filter_fn=lambda p: p.suffix == ".py" or p.is_dir()
 )
 
 # Smart sync
-result = zo.copy_tree("./new", "./deploy", on_conflict="only_if_newer")
+result = zfs.copy_tree("./new", "./deploy", on_conflict="only_if_newer")
 ```
 
 ---
@@ -1453,13 +1453,13 @@ Synchronize destination with source (mirror).
 
 ```python
 # One-way sync
-result = zo.sync_dirs("./source", "./mirror")
+result = zfs.sync_dirs("./source", "./mirror")
 
 # Full mirror with deletion
-result = zo.sync_dirs("./source", "./mirror", delete_extra=True)
+result = zfs.sync_dirs("./source", "./mirror", delete_extra=True)
 
 # Preview changes
-result = zo.sync_dirs("./src", "./dst", dry_run=True)
+result = zfs.sync_dirs("./src", "./dst", dry_run=True)
 print(f"Would copy: {result.copied}, delete: {result.deleted}")
 ```
 
@@ -1482,12 +1482,12 @@ Context manager for temporary directory with auto-cleanup.
 **Examples:**
 
 ```python
-with zo.temp_directory() as tmp:
+with zfs.temp_directory() as tmp:
     (tmp / "file.txt").write_text("temporary content")
 # Directory and contents deleted on exit
 
 # Keep directory after exit
-with zo.temp_directory(cleanup=False) as tmp:
+with zfs.temp_directory(cleanup=False) as tmp:
     print(f"Temp dir at: {tmp}")
 ```
 
@@ -1531,7 +1531,7 @@ Copy all files to single flat directory.
 
 ```python
 # a/b/c.txt -> a_b_c.txt
-zo.flatten_tree("./nested", "./flat")
+zfs.flatten_tree("./nested", "./flat")
 ```
 
 ---
@@ -1554,9 +1554,9 @@ Calculate hash representing entire directory state.
 
 ```python
 # Detect any changes
-before = zo.directory_hash("./config")
+before = zfs.directory_hash("./config")
 make_changes()
-after = zo.directory_hash("./config")
+after = zfs.directory_hash("./config")
 if before != after:
     print("Configuration modified!")
 ```
@@ -1690,14 +1690,14 @@ Pseudo-transactional file operations with atomic commit and rollback.
 
 ```python
 # Context manager (recommended)
-with zo.FileTransaction() as tx:
+with zfs.FileTransaction() as tx:
     tx.write_text("config.json", new_config)
     tx.write_text("state.json", new_state)
     tx.delete_file("old_config.json")
 # All applied atomically or all rolled back
 
 # Manual control
-tx = zo.FileTransaction()
+tx = zfs.FileTransaction()
 try:
     tx.write_text("a.txt", "content a")
     tx.copy_file("template.txt", "b.txt")
@@ -1800,9 +1800,9 @@ Create tar archive.
 **Examples:**
 
 ```python
-zo.create_tar("./project", "backup.tar")
-zo.create_tar("./data", "archive.tar.gz", compression="gz")
-zo.create_tar("./src", "code.tar.xz", compression="xz")
+zfs.create_tar("./project", "backup.tar")
+zfs.create_tar("./data", "archive.tar.gz", compression="gz")
+zfs.create_tar("./src", "code.tar.xz", compression="xz")
 ```
 
 ---
@@ -1913,7 +1913,7 @@ Polling-based file system watcher.
 def on_change(event):
     print(f"{event.type.name}: {event.path}")
 
-watcher = zo.FileWatcher("./watched")
+watcher = zfs.FileWatcher("./watched")
 watcher.on_created(on_change)
 watcher.on_modified(on_change)
 watcher.start()  # Non-blocking, runs in thread
@@ -1922,7 +1922,7 @@ watcher.start()  # Non-blocking, runs in thread
 watcher.stop()
 
 # Context manager
-with zo.FileWatcher("./dir") as watcher:
+with zfs.FileWatcher("./dir") as watcher:
     watcher.on_any(lambda e: print(e))
     time.sleep(60)
 ```

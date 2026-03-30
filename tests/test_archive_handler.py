@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ class TestCreateZip:
         """Test basic ZIP creation."""
         archive = tmp_path / "archive.zip"
 
-        result = zo.create_zip(sample_files, archive)
+        result = zfs.create_zip(sample_files, archive)
 
         assert result == archive
         assert archive.exists()
@@ -45,10 +45,10 @@ class TestCreateZip:
         """Test that ZIP contains expected files."""
         archive = tmp_path / "archive.zip"
 
-        zo.create_zip(sample_files, archive)
+        zfs.create_zip(sample_files, archive)
 
         # List archive contents
-        contents = zo.list_archive(archive)
+        contents = zfs.list_archive(archive)
 
         assert len(contents) >= 3
         assert any("file1.txt" in c for c in contents)
@@ -60,13 +60,13 @@ class TestCreateZip:
         archive = tmp_path / "filtered.zip"
 
         # Only include file1.txt
-        zo.create_zip(
+        zfs.create_zip(
             sample_files,
             archive,
             filter_fn=lambda p: p.name == "file1.txt",
         )
 
-        contents = zo.list_archive(archive)
+        contents = zfs.list_archive(archive)
 
         assert len(contents) == 1
         assert "file1.txt" in contents[0]
@@ -75,7 +75,7 @@ class TestCreateZip:
         """Test ZIP with no compression (stored)."""
         archive = tmp_path / "stored.zip"
 
-        zo.create_zip(sample_files, archive, compression="stored")
+        zfs.create_zip(sample_files, archive, compression="stored")
 
         assert archive.exists()
 
@@ -83,7 +83,7 @@ class TestCreateZip:
         """Test ZIP with deflate compression."""
         archive = tmp_path / "deflated.zip"
 
-        zo.create_zip(sample_files, archive, compression="deflated")
+        zfs.create_zip(sample_files, archive, compression="deflated")
 
         assert archive.exists()
 
@@ -96,8 +96,8 @@ class TestExtractZip:
         archive = tmp_path / "archive.zip"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_zip(sample_files, archive)
-        result = zo.extract_zip(archive, extract_dir)
+        zfs.create_zip(sample_files, archive)
+        result = zfs.extract_zip(archive, extract_dir)
 
         assert result == extract_dir
         assert extract_dir.exists()
@@ -107,8 +107,8 @@ class TestExtractZip:
         archive = tmp_path / "archive.zip"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_zip(sample_files, archive)
-        zo.extract_zip(archive, extract_dir)
+        zfs.create_zip(sample_files, archive)
+        zfs.extract_zip(archive, extract_dir)
 
         # Check files exist
         files = list(extract_dir.rglob("*"))
@@ -123,8 +123,8 @@ class TestExtractZip:
         archive = tmp_path / "archive.zip"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_zip(sample_files, archive)
-        zo.extract_zip(archive, extract_dir, filter_fn=lambda name: "file1" in name)
+        zfs.create_zip(sample_files, archive)
+        zfs.extract_zip(archive, extract_dir, filter_fn=lambda name: "file1" in name)
 
         files = list(extract_dir.rglob("*.txt"))
         file_names = [f.name for f in files]
@@ -140,7 +140,7 @@ class TestCreateTar:
         """Test basic TAR creation."""
         archive = tmp_path / "archive.tar"
 
-        result = zo.create_tar(sample_files, archive)
+        result = zfs.create_tar(sample_files, archive)
 
         assert result == archive
         assert archive.exists()
@@ -149,7 +149,7 @@ class TestCreateTar:
         """Test TAR with gzip compression."""
         archive = tmp_path / "archive.tar.gz"
 
-        zo.create_tar(sample_files, archive, compression="gz")
+        zfs.create_tar(sample_files, archive, compression="gz")
 
         assert archive.exists()
         assert archive.stat().st_size > 0
@@ -158,7 +158,7 @@ class TestCreateTar:
         """Test TAR with bzip2 compression."""
         archive = tmp_path / "archive.tar.bz2"
 
-        zo.create_tar(sample_files, archive, compression="bz2")
+        zfs.create_tar(sample_files, archive, compression="bz2")
 
         assert archive.exists()
 
@@ -166,7 +166,7 @@ class TestCreateTar:
         """Test TAR with xz compression."""
         archive = tmp_path / "archive.tar.xz"
 
-        zo.create_tar(sample_files, archive, compression="xz")
+        zfs.create_tar(sample_files, archive, compression="xz")
 
         assert archive.exists()
 
@@ -174,9 +174,9 @@ class TestCreateTar:
         """Test that TAR contains expected files."""
         archive = tmp_path / "archive.tar"
 
-        zo.create_tar(sample_files, archive)
+        zfs.create_tar(sample_files, archive)
 
-        contents = zo.list_archive(archive)
+        contents = zfs.list_archive(archive)
 
         assert any("file1.txt" in c for c in contents)
         assert any("nested.txt" in c for c in contents)
@@ -190,8 +190,8 @@ class TestExtractTar:
         archive = tmp_path / "archive.tar"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_tar(sample_files, archive)
-        result = zo.extract_tar(archive, extract_dir)
+        zfs.create_tar(sample_files, archive)
+        result = zfs.extract_tar(archive, extract_dir)
 
         assert result == extract_dir
         assert extract_dir.exists()
@@ -201,8 +201,8 @@ class TestExtractTar:
         archive = tmp_path / "archive.tar.gz"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_tar(sample_files, archive, compression="gz")
-        zo.extract_tar(archive, extract_dir)
+        zfs.create_tar(sample_files, archive, compression="gz")
+        zfs.extract_tar(archive, extract_dir)
 
         files = list(extract_dir.rglob("*.txt"))
         assert len(files) >= 3
@@ -212,8 +212,8 @@ class TestExtractTar:
         archive = tmp_path / "archive.tar"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_tar(sample_files, archive)
-        zo.extract_tar(archive, extract_dir)
+        zfs.create_tar(sample_files, archive)
+        zfs.extract_tar(archive, extract_dir)
 
         # Check nested file exists
         nested_files = list(extract_dir.rglob("nested.txt"))
@@ -228,8 +228,8 @@ class TestGenericExtract:
         archive = tmp_path / "archive.zip"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_zip(sample_files, archive)
-        zo.extract(archive, extract_dir)
+        zfs.create_zip(sample_files, archive)
+        zfs.extract(archive, extract_dir)
 
         assert extract_dir.exists()
         files = list(extract_dir.rglob("*.txt"))
@@ -240,8 +240,8 @@ class TestGenericExtract:
         archive = tmp_path / "archive.tar"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_tar(sample_files, archive)
-        zo.extract(archive, extract_dir)
+        zfs.create_tar(sample_files, archive)
+        zfs.extract(archive, extract_dir)
 
         assert extract_dir.exists()
 
@@ -250,8 +250,8 @@ class TestGenericExtract:
         archive = tmp_path / "archive.tar.gz"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_tar(sample_files, archive, compression="gz")
-        zo.extract(archive, extract_dir)
+        zfs.create_tar(sample_files, archive, compression="gz")
+        zfs.extract(archive, extract_dir)
 
         assert extract_dir.exists()
 
@@ -263,8 +263,8 @@ class TestListArchive:
         """Test listing ZIP archive contents."""
         archive = tmp_path / "archive.zip"
 
-        zo.create_zip(sample_files, archive)
-        contents = zo.list_archive(archive)
+        zfs.create_zip(sample_files, archive)
+        contents = zfs.list_archive(archive)
 
         assert isinstance(contents, list)
         assert len(contents) >= 3
@@ -273,8 +273,8 @@ class TestListArchive:
         """Test listing TAR archive contents."""
         archive = tmp_path / "archive.tar"
 
-        zo.create_tar(sample_files, archive)
-        contents = zo.list_archive(archive)
+        zfs.create_tar(sample_files, archive)
+        contents = zfs.list_archive(archive)
 
         assert isinstance(contents, list)
         assert len(contents) >= 3
@@ -283,8 +283,8 @@ class TestListArchive:
         """Test listing TAR.GZ archive contents."""
         archive = tmp_path / "archive.tar.gz"
 
-        zo.create_tar(sample_files, archive, compression="gz")
-        contents = zo.list_archive(archive)
+        zfs.create_tar(sample_files, archive, compression="gz")
+        contents = zfs.list_archive(archive)
 
         assert isinstance(contents, list)
 
@@ -297,8 +297,8 @@ class TestArchiveRoundTrip:
         archive = tmp_path / "archive.zip"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_zip(sample_files, archive)
-        zo.extract_zip(archive, extract_dir)
+        zfs.create_zip(sample_files, archive)
+        zfs.extract_zip(archive, extract_dir)
 
         # Find and check content
         original = (sample_files / "file1.txt").read_text()
@@ -311,8 +311,8 @@ class TestArchiveRoundTrip:
         archive = tmp_path / "archive.tar.gz"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_tar(sample_files, archive, compression="gz")
-        zo.extract_tar(archive, extract_dir)
+        zfs.create_tar(sample_files, archive, compression="gz")
+        zfs.extract_tar(archive, extract_dir)
 
         # Find and check content
         original = (sample_files / "file1.txt").read_text()
@@ -330,8 +330,8 @@ class TestArchiveRoundTrip:
         archive = tmp_path / "unicode.zip"
         extract_dir = tmp_path / "extracted"
 
-        zo.create_zip(src, archive)
-        zo.extract_zip(archive, extract_dir)
+        zfs.create_zip(src, archive)
+        zfs.extract_zip(archive, extract_dir)
 
         files = list(extract_dir.rglob("*.txt"))
         assert len(files) == 2

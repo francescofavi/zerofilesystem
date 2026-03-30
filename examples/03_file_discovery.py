@@ -11,7 +11,7 @@ This example demonstrates:
 import tempfile
 from pathlib import Path
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 def create_sample_project(base: Path) -> None:
@@ -61,7 +61,7 @@ def main() -> None:
 
         print("=== Find All Files (Recursive) ===\n")
 
-        all_files = zo.find_files(tmp_path)
+        all_files = zfs.find_files(tmp_path)
         print(f"Total files found: {len(all_files)}")
         for f in all_files[:5]:
             print(f"  - {f.relative_to(tmp_path)}")
@@ -74,7 +74,7 @@ def main() -> None:
 
         print("\n=== Find Python Files ===\n")
 
-        py_files = zo.find_files(tmp_path, pattern="*.py")
+        py_files = zfs.find_files(tmp_path, pattern="*.py")
         print(f"Python files: {len(py_files)}")
         for f in py_files:
             print(f"  - {f.relative_to(tmp_path)}")
@@ -85,7 +85,7 @@ def main() -> None:
 
         print("\n=== Find Test Files ===\n")
 
-        test_files = zo.find_files(tmp_path, pattern="test_*.py")
+        test_files = zfs.find_files(tmp_path, pattern="test_*.py")
         print(f"Test files: {len(test_files)}")
         for f in test_files:
             print(f"  - {f.relative_to(tmp_path)}")
@@ -96,7 +96,7 @@ def main() -> None:
 
         print("\n=== Find Files in Root Only (Non-Recursive) ===\n")
 
-        root_files = zo.find_files(tmp_path, pattern="*", recursive=False)
+        root_files = zfs.find_files(tmp_path, pattern="*", recursive=False)
         print(f"Files in root directory: {len(root_files)}")
         for f in root_files:
             print(f"  - {f.name}")
@@ -107,7 +107,7 @@ def main() -> None:
 
         print("\n=== Custom Filter: Files Larger Than 1KB ===\n")
 
-        large_files = zo.find_files(
+        large_files = zfs.find_files(
             tmp_path,
             filter_fn=lambda p: p.stat().st_size > 1000,
         )
@@ -118,7 +118,7 @@ def main() -> None:
 
         print("\n=== Custom Filter: Non-Test Python Files ===\n")
 
-        non_test_py = zo.find_files(
+        non_test_py = zfs.find_files(
             tmp_path,
             pattern="*.py",
             filter_fn=lambda p: not p.name.startswith("test_"),
@@ -133,7 +133,7 @@ def main() -> None:
 
         print("\n=== Limited Results ===\n")
 
-        first_three = zo.find_files(tmp_path, pattern="*.py", max_results=3)
+        first_three = zfs.find_files(tmp_path, pattern="*.py", max_results=3)
         print("First 3 Python files:")
         for f in first_three:
             print(f"  - {f.relative_to(tmp_path)}")
@@ -144,7 +144,7 @@ def main() -> None:
 
         print("\n=== Relative Paths ===\n")
 
-        relative_files = zo.find_files(tmp_path, pattern="*.md", absolute=False)
+        relative_files = zfs.find_files(tmp_path, pattern="*.md", absolute=False)
         print("Markdown files (relative paths):")
         for f in relative_files:
             print(f"  - {f}")
@@ -156,7 +156,7 @@ def main() -> None:
         print("\n=== Generator-Based Walking (Memory Efficient) ===\n")
 
         print("Processing files one at a time:")
-        for count, filepath in enumerate(zo.walk_files(tmp_path, pattern="*.py"), 1):
+        for count, filepath in enumerate(zfs.walk_files(tmp_path, pattern="*.py"), 1):
             print(f"  Processing: {filepath.name}")
             if count >= 3:
                 print("  (stopping early for demo)")
@@ -168,14 +168,14 @@ def main() -> None:
 
         print("\n=== Hidden File Detection ===\n")
 
-        all_items = zo.find_files(tmp_path)
+        all_items = zfs.find_files(tmp_path)
         for f in all_items:
-            if zo.is_hidden(f):
+            if zfs.is_hidden(f):
                 print(f"  [HIDDEN] {f.relative_to(tmp_path)}")
 
         # Check specific files
-        print(f"\n.gitignore is hidden: {zo.is_hidden(tmp_path / '.gitignore')}")
-        print(f"main.py is hidden: {zo.is_hidden(tmp_path / 'main.py')}")
+        print(f"\n.gitignore is hidden: {zfs.is_hidden(tmp_path / '.gitignore')}")
+        print(f"main.py is hidden: {zfs.is_hidden(tmp_path / 'main.py')}")
 
         # =========================================================================
         # SEARCHING IN SUBDIRECTORY
@@ -183,7 +183,7 @@ def main() -> None:
 
         print("\n=== Search in Specific Subdirectory ===\n")
 
-        src_files = zo.find_files(tmp_path / "src", pattern="*.py")
+        src_files = zfs.find_files(tmp_path / "src", pattern="*.py")
         print("Python files in src/:")
         for f in src_files:
             print(f"  - {f.relative_to(tmp_path)}")

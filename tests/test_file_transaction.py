@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 from zerofilesystem import TransactionError
 
 
@@ -18,7 +18,7 @@ class TestFileTransactionBasic:
         """Test basic text file write in transaction."""
         file_path = tmp_path / "test.txt"
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_text(file_path, "Hello World")
 
         assert file_path.read_text() == "Hello World"
@@ -27,7 +27,7 @@ class TestFileTransactionBasic:
         """Test binary file write in transaction."""
         file_path = tmp_path / "test.bin"
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_bytes(file_path, b"\x00\x01\x02")
 
         assert file_path.read_bytes() == b"\x00\x01\x02"
@@ -38,7 +38,7 @@ class TestFileTransactionBasic:
         file2 = tmp_path / "file2.txt"
         file3 = tmp_path / "file3.txt"
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_text(file1, "Content 1")
             tx.write_text(file2, "Content 2")
             tx.write_text(file3, "Content 3")
@@ -51,7 +51,7 @@ class TestFileTransactionBasic:
         """Test that transaction creates parent directories."""
         file_path = tmp_path / "deep" / "nested" / "file.txt"
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_text(file_path, "Content")
 
         assert file_path.exists()
@@ -61,7 +61,7 @@ class TestFileTransactionBasic:
         """Test explicit commit."""
         file_path = tmp_path / "test.txt"
 
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.write_text(file_path, "Content")
         tx.commit()
 
@@ -76,7 +76,7 @@ class TestFileTransactionRollback:
         file1 = tmp_path / "file1.txt"
         file2 = tmp_path / "file2.txt"
 
-        with pytest.raises(ValueError), zo.FileTransaction() as tx:
+        with pytest.raises(ValueError), zfs.FileTransaction() as tx:
             tx.write_text(file1, "Content 1")
             tx.write_text(file2, "Content 2")
             raise ValueError("Simulated error")
@@ -89,7 +89,7 @@ class TestFileTransactionRollback:
         """Test explicit rollback."""
         file_path = tmp_path / "test.txt"
 
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.write_text(file_path, "Content")
         tx.rollback()
 
@@ -100,7 +100,7 @@ class TestFileTransactionRollback:
         file_path = tmp_path / "existing.txt"
         file_path.write_text("Original Content")
 
-        with pytest.raises(ValueError), zo.FileTransaction() as tx:
+        with pytest.raises(ValueError), zfs.FileTransaction() as tx:
             tx.write_text(file_path, "New Content")
             raise ValueError("Simulated error")
 
@@ -114,7 +114,7 @@ class TestFileTransactionRollback:
         file1.write_text("Original 1")
         file2.write_text("Original 2")
 
-        with pytest.raises(ValueError), zo.FileTransaction() as tx:
+        with pytest.raises(ValueError), zfs.FileTransaction() as tx:
             tx.write_text(file1, "Modified 1")
             tx.write_text(file2, "Modified 2")
             raise ValueError("Simulated error")
@@ -132,7 +132,7 @@ class TestFileTransactionCopyDelete:
         dst = tmp_path / "destination.txt"
         src.write_text("Source Content")
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.copy_file(src, dst)
 
         assert dst.read_text() == "Source Content"
@@ -143,7 +143,7 @@ class TestFileTransactionCopyDelete:
         file_path = tmp_path / "to_delete.txt"
         file_path.write_text("Content")
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.delete_file(file_path)
 
         assert not file_path.exists()
@@ -153,7 +153,7 @@ class TestFileTransactionCopyDelete:
         file_path = tmp_path / "to_delete.txt"
         file_path.write_text("Important Content")
 
-        with pytest.raises(ValueError), zo.FileTransaction() as tx:
+        with pytest.raises(ValueError), zfs.FileTransaction() as tx:
             tx.delete_file(file_path)
             raise ValueError("Abort!")
 
@@ -165,7 +165,7 @@ class TestFileTransactionCopyDelete:
         """Test deleting non-existent file is safe."""
         file_path = tmp_path / "nonexistent.txt"
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.delete_file(file_path)  # Should not raise
 
 
@@ -176,7 +176,7 @@ class TestFileTransactionState:
         """Test that transaction cannot be used after commit."""
         file_path = tmp_path / "test.txt"
 
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.write_text(file_path, "Content")
         tx.commit()
 
@@ -185,7 +185,7 @@ class TestFileTransactionState:
 
     def test_transaction_cannot_use_after_rollback(self, tmp_path: Path) -> None:
         """Test that transaction cannot be used after rollback."""
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.rollback()
 
         with pytest.raises(TransactionError):
@@ -193,7 +193,7 @@ class TestFileTransactionState:
 
     def test_transaction_cannot_rollback_after_commit(self, tmp_path: Path) -> None:
         """Test that rollback after commit raises error."""
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.commit()
 
         with pytest.raises(TransactionError):
@@ -201,7 +201,7 @@ class TestFileTransactionState:
 
     def test_transaction_commit_empty_is_ok(self) -> None:
         """Test committing empty transaction is allowed."""
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.commit()  # Should not raise
 
 
@@ -214,7 +214,7 @@ class TestFileTransactionTempDir:
         custom_temp.mkdir()
         file_path = tmp_path / "output.txt"
 
-        with zo.FileTransaction(temp_dir=custom_temp) as tx:
+        with zfs.FileTransaction(temp_dir=custom_temp) as tx:
             tx.write_text(file_path, "Content")
 
         assert file_path.read_text() == "Content"
@@ -223,7 +223,7 @@ class TestFileTransactionTempDir:
         """Test that temp files are cleaned up after commit."""
         file_path = tmp_path / "output.txt"
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_text(file_path, "Content")
 
         # No temp files should remain in system temp
@@ -235,7 +235,7 @@ class TestFileTransactionTempDir:
         """Test that temp files are cleaned up on rollback."""
         file_path = tmp_path / "output.txt"
 
-        tx = zo.FileTransaction()
+        tx = zfs.FileTransaction()
         tx.write_text(file_path, "Content")
         tx.rollback()
 
@@ -251,7 +251,7 @@ class TestFileTransactionOverwrite:
         file_path = tmp_path / "existing.txt"
         file_path.write_text("Old Content")
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_text(file_path, "New Content")
 
         assert file_path.read_text() == "New Content"
@@ -261,7 +261,7 @@ class TestFileTransactionOverwrite:
         file_path = tmp_path / "test.txt"
         file_path.write_text("Original")
 
-        with zo.FileTransaction() as tx:
+        with zfs.FileTransaction() as tx:
             tx.write_text(file_path, "First Update")
             tx.write_text(file_path, "Second Update")
             tx.write_text(file_path, "Final Update")
