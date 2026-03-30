@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 class TestReadText:
@@ -18,7 +18,7 @@ class TestReadText:
         file_path = tmp_path / "test.txt"
         file_path.write_text("Hello World", encoding="utf-8")
 
-        content = zo.read_text(file_path)
+        content = zfs.read_text(file_path)
         assert content == "Hello World"
 
     def test_read_text_with_encoding(self, tmp_path: Path) -> None:
@@ -26,7 +26,7 @@ class TestReadText:
         file_path = tmp_path / "test_utf16.txt"
         file_path.write_text("Ciao àèìòù", encoding="utf-16")
 
-        content = zo.read_text(file_path, encoding="utf-16")
+        content = zfs.read_text(file_path, encoding="utf-16")
         assert content == "Ciao àèìòù"
 
     def test_read_text_multiline(self, tmp_path: Path) -> None:
@@ -35,7 +35,7 @@ class TestReadText:
         expected = "Line 1\nLine 2\nLine 3"
         file_path.write_text(expected, encoding="utf-8")
 
-        content = zo.read_text(file_path)
+        content = zfs.read_text(file_path)
         assert content == expected
 
     def test_read_text_unicode(self, tmp_path: Path) -> None:
@@ -44,7 +44,7 @@ class TestReadText:
         expected = "日本語 中文 한국어 العربية"
         file_path.write_text(expected, encoding="utf-8")
 
-        content = zo.read_text(file_path)
+        content = zfs.read_text(file_path)
         assert content == expected
 
     def test_read_text_nonexistent_raises(self, tmp_path: Path) -> None:
@@ -52,7 +52,7 @@ class TestReadText:
         file_path = tmp_path / "nonexistent.txt"
 
         with pytest.raises(FileNotFoundError):
-            zo.read_text(file_path)
+            zfs.read_text(file_path)
 
 
 class TestWriteText:
@@ -62,7 +62,7 @@ class TestWriteText:
         """Test basic text file writing."""
         file_path = tmp_path / "output.txt"
 
-        result = zo.write_text(file_path, "Hello World")
+        result = zfs.write_text(file_path, "Hello World")
 
         assert result == file_path
         assert file_path.read_text() == "Hello World"
@@ -71,7 +71,7 @@ class TestWriteText:
         """Test that write_text creates parent directories."""
         file_path = tmp_path / "deep" / "nested" / "dir" / "file.txt"
 
-        zo.write_text(file_path, "Content")
+        zfs.write_text(file_path, "Content")
 
         assert file_path.exists()
         assert file_path.read_text() == "Content"
@@ -81,15 +81,15 @@ class TestWriteText:
         file_path = tmp_path / "nonexistent" / "file.txt"
 
         with pytest.raises(FileNotFoundError):
-            zo.write_text(file_path, "Content", create_dirs=False)
+            zfs.write_text(file_path, "Content", create_dirs=False)
 
     def test_write_text_atomic(self, tmp_path: Path) -> None:
         """Test atomic write doesn't leave partial files."""
         file_path = tmp_path / "atomic.txt"
-        zo.write_text(file_path, "Original")
+        zfs.write_text(file_path, "Original")
 
         # Atomic write
-        zo.write_text(file_path, "Updated", atomic=True)
+        zfs.write_text(file_path, "Updated", atomic=True)
 
         assert file_path.read_text() == "Updated"
         # No temp files should remain
@@ -100,7 +100,7 @@ class TestWriteText:
         """Test non-atomic write."""
         file_path = tmp_path / "non_atomic.txt"
 
-        zo.write_text(file_path, "Content", atomic=False)
+        zfs.write_text(file_path, "Content", atomic=False)
 
         assert file_path.read_text() == "Content"
 
@@ -109,7 +109,7 @@ class TestWriteText:
         file_path = tmp_path / "existing.txt"
         file_path.write_text("Original")
 
-        zo.write_text(file_path, "New Content")
+        zfs.write_text(file_path, "New Content")
 
         assert file_path.read_text() == "New Content"
 
@@ -122,7 +122,7 @@ class TestReadBytes:
         file_path = tmp_path / "binary.bin"
         file_path.write_bytes(b"\x00\x01\x02\xff")
 
-        content = zo.read_bytes(file_path)
+        content = zfs.read_bytes(file_path)
         assert content == b"\x00\x01\x02\xff"
 
     def test_read_bytes_image_like(self, tmp_path: Path) -> None:
@@ -131,7 +131,7 @@ class TestReadBytes:
         png_header = b"\x89PNG\r\n\x1a\n"  # PNG magic bytes
         file_path.write_bytes(png_header)
 
-        content = zo.read_bytes(file_path)
+        content = zfs.read_bytes(file_path)
         assert content == png_header
 
     def test_read_bytes_nonexistent_raises(self, tmp_path: Path) -> None:
@@ -139,7 +139,7 @@ class TestReadBytes:
         file_path = tmp_path / "nonexistent.bin"
 
         with pytest.raises(FileNotFoundError):
-            zo.read_bytes(file_path)
+            zfs.read_bytes(file_path)
 
 
 class TestWriteBytes:
@@ -149,7 +149,7 @@ class TestWriteBytes:
         """Test basic binary file writing."""
         file_path = tmp_path / "output.bin"
 
-        result = zo.write_bytes(file_path, b"\x00\x01\x02\xff")
+        result = zfs.write_bytes(file_path, b"\x00\x01\x02\xff")
 
         assert result == file_path
         assert file_path.read_bytes() == b"\x00\x01\x02\xff"
@@ -158,7 +158,7 @@ class TestWriteBytes:
         """Test that write_bytes creates parent directories."""
         file_path = tmp_path / "deep" / "path" / "data.bin"
 
-        zo.write_bytes(file_path, b"binary data")
+        zfs.write_bytes(file_path, b"binary data")
 
         assert file_path.exists()
         assert file_path.read_bytes() == b"binary data"
@@ -166,9 +166,9 @@ class TestWriteBytes:
     def test_write_bytes_atomic(self, tmp_path: Path) -> None:
         """Test atomic binary write."""
         file_path = tmp_path / "atomic.bin"
-        zo.write_bytes(file_path, b"original")
+        zfs.write_bytes(file_path, b"original")
 
-        zo.write_bytes(file_path, b"updated", atomic=True)
+        zfs.write_bytes(file_path, b"updated", atomic=True)
 
         assert file_path.read_bytes() == b"updated"
 
@@ -181,14 +181,14 @@ class TestAcceptsBothPathTypes:
         file_path = tmp_path / "test.txt"
         file_path.write_text("content")
 
-        content = zo.read_text(str(file_path))
+        content = zfs.read_text(str(file_path))
         assert content == "content"
 
     def test_write_text_str_path(self, tmp_path: Path) -> None:
         """Test write_text accepts string path."""
         file_path = str(tmp_path / "test.txt")
 
-        zo.write_text(file_path, "content")
+        zfs.write_text(file_path, "content")
 
         assert Path(file_path).read_text() == "content"
 
@@ -197,13 +197,13 @@ class TestAcceptsBothPathTypes:
         file_path = tmp_path / "test.bin"
         file_path.write_bytes(b"data")
 
-        content = zo.read_bytes(str(file_path))
+        content = zfs.read_bytes(str(file_path))
         assert content == b"data"
 
     def test_write_bytes_str_path(self, tmp_path: Path) -> None:
         """Test write_bytes accepts string path."""
         file_path = str(tmp_path / "test.bin")
 
-        zo.write_bytes(file_path, b"data")
+        zfs.write_bytes(file_path, b"data")
 
         assert Path(file_path).read_bytes() == b"data"

@@ -1,8 +1,13 @@
-# zerofilesystem
+# ZeroFileSystem
 
+[![CI](https://github.com/francescofavi/zerofilesystem/actions/workflows/ci.yml/badge.svg)](https://github.com/francescofavi/zerofilesystem/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/zerofilesystem.svg?cacheSeconds=0)](https://pypi.org/project/zerofilesystem/)
 [![Python versions](https://img.shields.io/pypi/pyversions/zerofilesystem.svg?cacheSeconds=0)](https://pypi.org/project/zerofilesystem/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?cacheSeconds=0)](https://github.com/francescofavi/zerofilesystem/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?cacheSeconds=0)](https://opensource.org/licenses/MIT)
+[![Status](https://img.shields.io/pypi/status/zerofilesystem.svg?cacheSeconds=0)](https://pypi.org/project/zerofilesystem/)
+[![Typed](https://img.shields.io/badge/typed-PEP%20561-blue.svg?cacheSeconds=0)](https://peps.python.org/pep-0561/)
+[![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?cacheSeconds=0)]()
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg?cacheSeconds=0)](https://docs.astral.sh/ruff/)
 
 Cross-platform file system utilities for Python 3.12+
 
@@ -42,15 +47,15 @@ The library is structured into functional modules:
 Here's a realistic example showing how zerofilesystem components work together to create a simple backup system with integrity verification:
 
 ```python
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 # Create a backup of a project directory
 source_dir = "./my_project"
 backup_dir = "./backups"
 
 # Create timestamped backup archive
-zo.ensure_dir(backup_dir)
-archive_path = zo.create_zip(
+zfs.ensure_dir(backup_dir)
+archive_path = zfs.create_zip(
     source_dir,
     f"{backup_dir}/backup_2024.zip",
     filter_fn=lambda p: not p.name.startswith("."),  # Exclude hidden files
@@ -58,12 +63,12 @@ archive_path = zo.create_zip(
 )
 
 # Generate integrity manifest for verification
-manifest = zo.create_manifest(source_dir, algorithm="sha256")
-zo.save_manifest(manifest, f"{backup_dir}/backup_2024.manifest")
+manifest = zfs.create_manifest(source_dir, algorithm="sha256")
+zfs.save_manifest(manifest, f"{backup_dir}/backup_2024.manifest")
 
 # Later: verify the backup matches the manifest
-loaded_manifest, algo = zo.load_manifest(f"{backup_dir}/backup_2024.manifest")
-result = zo.verify_manifest(source_dir, loaded_manifest, algorithm=algo)
+loaded_manifest, algo = zfs.load_manifest(f"{backup_dir}/backup_2024.manifest")
+result = zfs.verify_manifest(source_dir, loaded_manifest, algorithm=algo)
 
 if result.is_valid:
     print("Backup integrity verified!")
@@ -71,7 +76,7 @@ else:
     print(f"Modified: {result.modified}, Missing: {result.missing}")
 
 # Use transactions for multi-file config updates
-with zo.FileTransaction() as tx:
+with zfs.FileTransaction() as tx:
     tx.write_text("config/app.json", '{"version": 2}')
     tx.write_text("config/db.json", '{"host": "localhost"}')
     # Both files written atomically, or neither if an error occurs
@@ -103,28 +108,28 @@ pip install -e .
 **`read_text(path, encoding="utf-8")`** - Read text file contents.
 ```python
 # Simple
-content = zo.read_text("config.txt")
+content = zfs.read_text("config.txt")
 
 # With encoding
-content = zo.read_text("data.txt", encoding="latin-1")
+content = zfs.read_text("data.txt", encoding="latin-1")
 ```
 
 **`write_text(path, data, atomic=True, create_dirs=True)`** - Write text with atomic safety.
 ```python
 # Simple
-zo.write_text("output.txt", "Hello World")
+zfs.write_text("output.txt", "Hello World")
 
 # Non-atomic write to existing directory
-zo.write_text("logs/app.log", log_data, atomic=False, create_dirs=False)
+zfs.write_text("logs/app.log", log_data, atomic=False, create_dirs=False)
 ```
 
 **`read_json(path)` / `write_json(path, obj)`** - JSON file operations.
 ```python
 # Simple
-config = zo.read_json("settings.json")
+config = zfs.read_json("settings.json")
 
 # Write with custom formatting
-zo.write_json("data.json", {"users": users}, indent=4, atomic=True)
+zfs.write_json("data.json", {"users": users}, indent=4, atomic=True)
 ```
 
 ### File Discovery
@@ -132,10 +137,10 @@ zo.write_json("data.json", {"users": users}, indent=4, atomic=True)
 **`find_files(base_dir, pattern, filter_fn, recursive, max_results)`** - Find files matching criteria.
 ```python
 # Simple - find all Python files
-py_files = zo.find_files("./src", pattern="*.py")
+py_files = zfs.find_files("./src", pattern="*.py")
 
 # Complex - find large log files, limit results
-large_logs = zo.find_files(
+large_logs = zfs.find_files(
     "./logs",
     pattern="*.log",
     filter_fn=lambda p: p.stat().st_size > 1024 * 1024,
@@ -147,7 +152,7 @@ large_logs = zo.find_files(
 **`walk_files(base_dir, pattern)`** - Memory-efficient generator for large directories.
 ```python
 # Process millions of files without loading all paths
-for path in zo.walk_files("/data", pattern="*.csv"):
+for path in zfs.walk_files("/data", pattern="*.csv"):
     process_file(path)
 ```
 
@@ -218,12 +223,12 @@ with Watcher("./config").patterns("*.yaml").on_any(reload) as w:
 **`FileLock(path, timeout)`** - Cross-platform advisory file lock.
 ```python
 # Simple - blocking lock
-with zo.FileLock("/tmp/myapp.lock"):
+with zfs.FileLock("/tmp/myapp.lock"):
     do_critical_work()
 
 # With timeout
 try:
-    with zo.FileLock("/tmp/myapp.lock", timeout=5.0):
+    with zfs.FileLock("/tmp/myapp.lock", timeout=5.0):
         do_critical_work()
 except TimeoutError:
     print("Could not acquire lock")
@@ -234,12 +239,12 @@ except TimeoutError:
 **`FileTransaction()`** - Atomic multi-file operations with rollback.
 ```python
 # Simple
-with zo.FileTransaction() as tx:
+with zfs.FileTransaction() as tx:
     tx.write_text("a.txt", "content a")
     tx.write_text("b.txt", "content b")
 
 # With explicit control
-tx = zo.FileTransaction()
+tx = zfs.FileTransaction()
 try:
     tx.write_text("config.json", new_config)
     tx.copy_file("template.txt", "output.txt")
@@ -253,10 +258,10 @@ except Exception:
 **`create_zip(source, output)` / `create_tar(source, output)`** - Create archives.
 ```python
 # Simple
-zo.create_zip("./project", "backup.zip")
+zfs.create_zip("./project", "backup.zip")
 
 # With compression and filtering
-zo.create_tar(
+zfs.create_tar(
     "./data",
     "archive.tar.gz",
     compression="gz",
@@ -267,8 +272,8 @@ zo.create_tar(
 **`extract(archive, destination)`** - Auto-detect and extract archives.
 ```python
 # Auto-detects format
-zo.extract("backup.zip", "./restored")
-zo.extract("archive.tar.gz", "./restored")
+zfs.extract("backup.zip", "./restored")
+zfs.extract("archive.tar.gz", "./restored")
 ```
 
 ### Integrity Checking
@@ -276,21 +281,21 @@ zo.extract("archive.tar.gz", "./restored")
 **`file_hash(path, algo)`** - Compute file hash.
 ```python
 # Simple
-sha = zo.file_hash("document.pdf")
+sha = zfs.file_hash("document.pdf")
 
 # With progress callback for large files
 def progress(done, total):
     print(f"\r{done}/{total} bytes", end="")
 
-sha = zo.file_hash("large.iso", algo="sha256", progress_callback=progress)
+sha = zfs.file_hash("large.iso", algo="sha256", progress_callback=progress)
 ```
 
 **`directory_hash(path)`** - Hash entire directory tree.
 ```python
 # Detect any changes in a directory
-before = zo.directory_hash("./config")
+before = zfs.directory_hash("./config")
 # ... operations ...
-after = zo.directory_hash("./config")
+after = zfs.directory_hash("./config")
 if before != after:
     print("Configuration changed!")
 ```
@@ -300,11 +305,11 @@ if before != after:
 **`copy_tree(src, dst)` / `move_tree(src, dst)`** - Recursive directory operations.
 ```python
 # Simple copy
-result = zo.copy_tree("./src", "./backup")
+result = zfs.copy_tree("./src", "./backup")
 print(f"Copied {len(result.copied)} files")
 
 # Sync with conflict handling
-result = zo.copy_tree(
+result = zfs.copy_tree(
     "./new_version",
     "./deploy",
     on_conflict="only_if_newer",
@@ -315,7 +320,7 @@ result = zo.copy_tree(
 **`sync_dirs(src, dst, delete_extra)`** - Mirror directories.
 ```python
 # One-way sync, optionally delete extra files in destination
-result = zo.sync_dirs("./source", "./mirror", delete_extra=True)
+result = zfs.sync_dirs("./source", "./mirror", delete_extra=True)
 ```
 
 ### Secure Operations
@@ -323,10 +328,10 @@ result = zo.sync_dirs("./source", "./mirror", delete_extra=True)
 **`secure_delete(path, passes)`** - Overwrite before deletion.
 ```python
 # Simple
-zo.secure_delete("sensitive.txt")
+zfs.secure_delete("sensitive.txt")
 
 # Multiple passes with random data
-zo.secure_delete("credentials.json", passes=7, random_data=True)
+zfs.secure_delete("credentials.json", passes=7, random_data=True)
 ```
 
 ## Development

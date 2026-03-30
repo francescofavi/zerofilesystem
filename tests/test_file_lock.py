@@ -10,7 +10,7 @@ from typing import Any
 
 import pytest
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 class TestFileLockBasic:
@@ -20,7 +20,7 @@ class TestFileLockBasic:
         """Test basic lock acquire and release."""
         lock_path = tmp_path / "test.lock"
 
-        lock = zo.FileLock(lock_path)
+        lock = zfs.FileLock(lock_path)
         lock.acquire()
 
         assert lock._locked is True
@@ -33,7 +33,7 @@ class TestFileLockBasic:
         """Test using FileLock as context manager."""
         lock_path = tmp_path / "test.lock"
 
-        with zo.FileLock(lock_path) as lock:
+        with zfs.FileLock(lock_path) as lock:
             assert lock._locked is True
 
         assert lock._locked is False
@@ -42,13 +42,13 @@ class TestFileLockBasic:
         """Test that FileLock creates parent directories."""
         lock_path = tmp_path / "deep" / "nested" / "test.lock"
 
-        with zo.FileLock(lock_path):
+        with zfs.FileLock(lock_path):
             assert lock_path.exists()
 
     def test_lock_reentrant_same_object(self, tmp_path: Path) -> None:
         """Test that releasing and re-acquiring works."""
         lock_path = tmp_path / "test.lock"
-        lock = zo.FileLock(lock_path)
+        lock = zfs.FileLock(lock_path)
 
         lock.acquire()
         lock.release()
@@ -60,7 +60,7 @@ class TestFileLockBasic:
     def test_lock_release_when_not_locked(self, tmp_path: Path) -> None:
         """Test release when not locked is safe."""
         lock_path = tmp_path / "test.lock"
-        lock = zo.FileLock(lock_path)
+        lock = zfs.FileLock(lock_path)
 
         # Should not raise
         lock.release()
@@ -70,7 +70,7 @@ class TestFileLockBasic:
         lock_path = tmp_path / "test.lock"
 
         def acquire_and_forget() -> None:
-            lock = zo.FileLock(lock_path)
+            lock = zfs.FileLock(lock_path)
             lock.acquire()
             # lock goes out of scope
 
@@ -81,7 +81,7 @@ class TestFileLockBasic:
         gc.collect()
 
         # Should be able to acquire new lock
-        lock = zo.FileLock(lock_path)
+        lock = zfs.FileLock(lock_path)
         lock.acquire()
         lock.release()
 
@@ -93,7 +93,7 @@ class TestFileLockTimeout:
         """Test lock with timeout when lock is available."""
         lock_path = tmp_path / "test.lock"
 
-        with zo.FileLock(lock_path, timeout=1.0):
+        with zfs.FileLock(lock_path, timeout=1.0):
             pass  # Should succeed immediately
 
     def test_lock_timeout_exceeded(self, tmp_path: Path) -> None:
@@ -101,14 +101,14 @@ class TestFileLockTimeout:
         lock_path = tmp_path / "test.lock"
 
         # Acquire lock in main thread
-        lock1 = zo.FileLock(lock_path)
+        lock1 = zfs.FileLock(lock_path)
         lock1.acquire()
 
         # Try to acquire with short timeout in different lock instance
         result = {"timeout_raised": False}
 
         def try_acquire() -> None:
-            lock2 = zo.FileLock(lock_path, timeout=0.2)
+            lock2 = zfs.FileLock(lock_path, timeout=0.2)
             try:
                 lock2.acquire()
             except TimeoutError:
@@ -141,7 +141,7 @@ class TestFileLockConcurrency:
         def increment() -> None:
             for _ in range(iterations):
                 try:
-                    with zo.FileLock(lock_path, timeout=5.0):
+                    with zfs.FileLock(lock_path, timeout=5.0):
                         # Read current value
                         current = int(counter_file.read_text())
                         # Simulate some work
@@ -171,7 +171,7 @@ class TestFileLockConcurrency:
         lock = threading.Lock()
 
         def access_resource(thread_id: int) -> None:
-            with zo.FileLock(lock_path, timeout=5.0):
+            with zfs.FileLock(lock_path, timeout=5.0):
                 with lock:
                     access_order.append(thread_id)
                 time.sleep(0.1)
@@ -197,25 +197,25 @@ class TestFileLockEdgeCases:
         """Test FileLock accepts both str and Path."""
         # String path
         str_path = str(tmp_path / "str.lock")
-        with zo.FileLock(str_path):
+        with zfs.FileLock(str_path):
             assert Path(str_path).exists()
 
         # Path object
         path_obj = tmp_path / "path.lock"
-        with zo.FileLock(path_obj):
+        with zfs.FileLock(path_obj):
             assert path_obj.exists()
 
     def test_lock_exception_in_context(self, tmp_path: Path) -> None:
         """Test that lock is released even if exception occurs."""
         lock_path = tmp_path / "test.lock"
 
-        with pytest.raises(ValueError), zo.FileLock(lock_path) as lock:
+        with pytest.raises(ValueError), zfs.FileLock(lock_path) as lock:
             assert lock._locked is True
             raise ValueError("Test error")
 
         # Lock should be released
         # Verify by acquiring a new lock
-        new_lock = zo.FileLock(lock_path)  # type: ignore[unreachable]
+        new_lock = zfs.FileLock(lock_path)  # type: ignore[unreachable]
         new_lock.acquire()
         assert new_lock._locked is True
         new_lock.release()
@@ -225,7 +225,7 @@ class TestFileLockEdgeCases:
         lock1_path = tmp_path / "lock1.lock"
         lock2_path = tmp_path / "lock2.lock"
 
-        with zo.FileLock(lock1_path) as lock1, zo.FileLock(lock2_path) as lock2:
+        with zfs.FileLock(lock1_path) as lock1, zfs.FileLock(lock2_path) as lock2:
             assert lock1._locked is True
             assert lock2._locked is True
 
@@ -233,5 +233,5 @@ class TestFileLockEdgeCases:
         """Test lock with path containing spaces."""
         lock_path = tmp_path / "path with spaces" / "test.lock"
 
-        with zo.FileLock(lock_path):
+        with zfs.FileLock(lock_path):
             assert lock_path.exists()

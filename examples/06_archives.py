@@ -12,7 +12,7 @@ This example demonstrates:
 import tempfile
 from pathlib import Path
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 def create_sample_project(base: Path) -> None:
@@ -47,14 +47,14 @@ def main() -> None:
         print("=== Create ZIP Archive ===\n")
 
         zip_file = tmp_path / "project.zip"
-        zo.create_zip(source_dir, zip_file)
+        zfs.create_zip(source_dir, zip_file)
 
         print(f"Created: {zip_file}")
         print(f"Size: {zip_file.stat().st_size} bytes")
 
         # List contents
         print("\nContents:")
-        for item in zo.list_archive(zip_file):
+        for item in zfs.list_archive(zip_file):
             print(f"  - {item}")
 
         # =========================================================================
@@ -64,7 +64,7 @@ def main() -> None:
         print("\n=== Create TAR Archive ===\n")
 
         tar_file = tmp_path / "project.tar"
-        zo.create_tar(source_dir, tar_file)
+        zfs.create_tar(source_dir, tar_file)
 
         print(f"Created: {tar_file}")
         print(f"Size: {tar_file.stat().st_size} bytes")
@@ -77,17 +77,17 @@ def main() -> None:
 
         # GZIP compression
         tar_gz = tmp_path / "project.tar.gz"
-        zo.create_tar(source_dir, tar_gz, compression="gz")
+        zfs.create_tar(source_dir, tar_gz, compression="gz")
         print(f"tar.gz: {tar_gz.stat().st_size} bytes")
 
         # BZIP2 compression
         tar_bz2 = tmp_path / "project.tar.bz2"
-        zo.create_tar(source_dir, tar_bz2, compression="bz2")
+        zfs.create_tar(source_dir, tar_bz2, compression="bz2")
         print(f"tar.bz2: {tar_bz2.stat().st_size} bytes")
 
         # XZ compression (best ratio)
         tar_xz = tmp_path / "project.tar.xz"
-        zo.create_tar(source_dir, tar_xz, compression="xz")
+        zfs.create_tar(source_dir, tar_xz, compression="xz")
         print(f"tar.xz: {tar_xz.stat().st_size} bytes")
 
         # Compare sizes
@@ -104,7 +104,7 @@ def main() -> None:
         print("\n=== Extract ZIP Archive ===\n")
 
         extract_zip_dir = tmp_path / "extracted_zip"
-        zo.extract_zip(zip_file, extract_zip_dir)
+        zfs.extract_zip(zip_file, extract_zip_dir)
 
         print(f"Extracted to: {extract_zip_dir}")
         print("\nExtracted files:")
@@ -119,7 +119,7 @@ def main() -> None:
         print("\n=== Extract TAR.GZ Archive ===\n")
 
         extract_tar_dir = tmp_path / "extracted_tar"
-        zo.extract_tar(tar_gz, extract_tar_dir)
+        zfs.extract_tar(tar_gz, extract_tar_dir)
 
         print(f"Extracted to: {extract_tar_dir}")
         print("\nExtracted files:")
@@ -136,9 +136,9 @@ def main() -> None:
         extract_auto_dir = tmp_path / "extracted_auto"
 
         # extract() auto-detects the format
-        zo.extract(zip_file, extract_auto_dir / "from_zip")
-        zo.extract(tar_gz, extract_auto_dir / "from_tar_gz")
-        zo.extract(tar_xz, extract_auto_dir / "from_tar_xz")
+        zfs.extract(zip_file, extract_auto_dir / "from_zip")
+        zfs.extract(tar_gz, extract_auto_dir / "from_tar_gz")
+        zfs.extract(tar_xz, extract_auto_dir / "from_tar_xz")
 
         print("Auto-extracted archives:")
         print(f"  ZIP extracted: {(extract_auto_dir / 'from_zip').exists()}")
@@ -153,26 +153,26 @@ def main() -> None:
 
         # Only archive Python files
         py_only_zip = tmp_path / "python_only.zip"
-        zo.create_zip(
+        zfs.create_zip(
             source_dir,
             py_only_zip,
             filter_fn=lambda p: p.suffix == ".py",
         )
 
         print("Python-only archive contents:")
-        for item in zo.list_archive(py_only_zip):
+        for item in zfs.list_archive(py_only_zip):
             print(f"  - {item}")
 
         # Exclude test files
         no_tests_zip = tmp_path / "no_tests.zip"
-        zo.create_zip(
+        zfs.create_zip(
             source_dir,
             no_tests_zip,
             filter_fn=lambda p: "test" not in p.name.lower(),
         )
 
         print("\nArchive without tests:")
-        for item in zo.list_archive(no_tests_zip):
+        for item in zfs.list_archive(no_tests_zip):
             print(f"  - {item}")
 
         # =========================================================================
@@ -184,7 +184,7 @@ def main() -> None:
         filtered_extract = tmp_path / "filtered_extract"
 
         # Only extract markdown files
-        zo.extract_zip(
+        zfs.extract_zip(
             zip_file,
             filtered_extract,
             filter_fn=lambda name: name.endswith(".md"),

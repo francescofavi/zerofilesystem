@@ -14,7 +14,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 class ConfigManager:
@@ -27,37 +27,37 @@ class ConfigManager:
         self.backup_dir = self.config_dir / "backups"
 
         # Ensure directories exist
-        zo.ensure_dir(self.config_dir)
-        zo.ensure_dir(self.backup_dir)
+        zfs.ensure_dir(self.config_dir)
+        zfs.ensure_dir(self.backup_dir)
 
     def load(self) -> dict:  # type: ignore[type-arg]
         """Load configuration safely with locking."""
         if not self.config_file.exists():
             return self._default_config()
 
-        with zo.FileLock(self.lock_file, timeout=5.0):
+        with zfs.FileLock(self.lock_file, timeout=5.0):
             return self._load_unlocked()
 
     def _load_unlocked(self) -> dict:  # type: ignore[type-arg]
         """Load configuration (caller must hold lock)."""
         if not self.config_file.exists():
             return self._default_config()
-        return zo.read_json(self.config_file)  # type: ignore[no-any-return]
+        return zfs.read_json(self.config_file)  # type: ignore[no-any-return]
 
     def _save_unlocked(self, config: dict) -> None:
         """Save configuration (caller must hold lock)."""
         if self.config_file.exists():
             self._backup_current()
-        zo.write_json(self.config_file, config)
+        zfs.write_json(self.config_file, config)
 
     def save(self, config: dict) -> None:
         """Save configuration safely with backup and locking."""
-        with zo.FileLock(self.lock_file, timeout=5.0):
+        with zfs.FileLock(self.lock_file, timeout=5.0):
             self._save_unlocked(config)
 
     def update(self, updates: dict) -> dict:
         """Update configuration values safely."""
-        with zo.FileLock(self.lock_file, timeout=5.0):
+        with zfs.FileLock(self.lock_file, timeout=5.0):
             config = self._load_unlocked()
             config.update(updates)
             self._save_unlocked(config)
@@ -69,27 +69,27 @@ class ConfigManager:
         backup_file = self.backup_dir / f"config_{timestamp}.json"
 
         # Use transaction to ensure backup is atomic
-        with zo.FileTransaction() as tx:
-            content = zo.read_text(self.config_file)
+        with zfs.FileTransaction() as tx:
+            content = zfs.read_text(self.config_file)
             tx.write_text(backup_file, content)
 
         return backup_file
 
     def list_backups(self) -> list[Path]:
         """List all backup files."""
-        return sorted(zo.find_files(self.backup_dir, pattern="*.json"))
+        return sorted(zfs.find_files(self.backup_dir, pattern="*.json"))
 
     def restore_backup(self, backup_path: Path) -> None:
         """Restore configuration from a backup."""
-        with zo.FileLock(self.lock_file, timeout=5.0):
+        with zfs.FileLock(self.lock_file, timeout=5.0):
             # Validate backup is valid JSON
-            backup_config = zo.read_json(backup_path)
+            backup_config = zfs.read_json(backup_path)
 
             # Save current as backup before restoring
             self._backup_current()
 
             # Restore
-            zo.write_json(self.config_file, backup_config)
+            zfs.write_json(self.config_file, backup_config)
 
     @staticmethod
     def _default_config() -> dict:
@@ -187,7 +187,7 @@ def main() -> None:
             oldest_backup = backups[0]
             print(f"Restoring from: {oldest_backup.name}")
 
-            old_config = zo.read_json(oldest_backup)
+            old_config = zfs.read_json(oldest_backup)
             print(f"Backup version: {old_config.get('version')}")
 
             current_config = manager.load()
@@ -234,13 +234,13 @@ def main() -> None:
 
         if manager.backup_dir.exists():
             archive_path = config_dir / "backups.zip"
-            zo.create_zip(manager.backup_dir, archive_path)
+            zfs.create_zip(manager.backup_dir, archive_path)
             print(f"Created backup archive: {archive_path}")
             print(f"Archive size: {archive_path.stat().st_size} bytes")
 
             # List contents
             print("\nArchive contents:")
-            for item in zo.list_archive(archive_path):
+            for item in zfs.list_archive(archive_path):
                 print(f"  - {item}")
 
         print("\n=== Done! ===")

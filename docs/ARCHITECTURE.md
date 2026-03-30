@@ -47,8 +47,8 @@ The library provides three access patterns:
 ### Layer 1: Flat Functions (Primary)
 
 ```python
-import zerofilesystem as zo
-zo.write_text("file.txt", "content")
+import zerofilesystem as zfs
+zfs.write_text("file.txt", "content")
 ```
 
 Defined in `__init__.py` as class method aliases:
@@ -65,7 +65,7 @@ This is the recommended usage. All public functions are listed in `__all__`.
 ```python
 from zerofilesystem import ZeroOS
 zo = ZeroOS()
-zo.write_text("file.txt", "content")
+zfs.write_text("file.txt", "content")
 ```
 
 Defined in `zerofilesystem.py`. All methods are `@staticmethod`, delegating to the corresponding class methods. Provides a single-object interface for IDE discoverability.

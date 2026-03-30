@@ -12,7 +12,7 @@ This example demonstrates:
 import tempfile
 from pathlib import Path
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 def create_sample_tree(base: Path) -> None:
@@ -44,7 +44,7 @@ def main() -> None:
         print("=== Copy Directory Tree ===\n")
 
         dest_copy = tmp_path / "copy"
-        zo.copy_tree(source, dest_copy)
+        zfs.copy_tree(source, dest_copy)
 
         print(f"Copied to: {dest_copy}")
         print("\nCopied files:")
@@ -59,7 +59,7 @@ def main() -> None:
         print("\n=== Copy with Filter (Python files only) ===\n")
 
         dest_filtered = tmp_path / "py_only"
-        zo.copy_tree(
+        zfs.copy_tree(
             source,
             dest_filtered,
             filter_fn=lambda p: p.suffix == ".py",
@@ -95,7 +95,7 @@ def main() -> None:
         print(f"  Dest: {[f.name for f in sync_dest.iterdir()]}")
 
         # Sync (without deleting extra files)
-        zo.sync_dirs(sync_source, sync_dest)
+        zfs.sync_dirs(sync_source, sync_dest)
 
         print("\nAfter sync (without delete_extra):")
         print(f"  Dest: {[f.name for f in sync_dest.iterdir()]}")
@@ -107,7 +107,7 @@ def main() -> None:
         (sync_dest / "extra.txt").write_text("Extra file")
 
         # Sync with delete_extra
-        zo.sync_dirs(sync_source, sync_dest, delete_extra=True)
+        zfs.sync_dirs(sync_source, sync_dest, delete_extra=True)
 
         print("\nAfter sync (with delete_extra):")
         print(f"  Dest: {[f.name for f in sync_dest.iterdir()]}")
@@ -118,7 +118,7 @@ def main() -> None:
 
         print("\n=== Temporary Directory ===\n")
 
-        with zo.temp_directory(prefix="myapp_") as temp_dir:
+        with zfs.temp_directory(prefix="myapp_") as temp_dir:
             print(f"Temp dir created: {temp_dir}")
             print(f"Exists: {temp_dir.exists()}")
 
@@ -131,7 +131,7 @@ def main() -> None:
 
         # Keep temp directory
         print("\n--- Keeping temp directory ---")
-        with zo.temp_directory(prefix="keep_", cleanup=False) as keep_dir:
+        with zfs.temp_directory(prefix="keep_", cleanup=False) as keep_dir:
             (keep_dir / "data.txt").write_text("Keep me")
             print(f"Created: {keep_dir}")
 
@@ -147,8 +147,8 @@ def main() -> None:
 
         print("\n=== Directory Size and File Count ===\n")
 
-        size = zo.tree_size(source)
-        count = zo.tree_file_count(source)
+        size = zfs.tree_size(source)
+        count = zfs.tree_file_count(source)
 
         print("Source directory:")
         print(f"  Total size: {size} bytes")
@@ -172,7 +172,7 @@ def main() -> None:
         print(f"  Source exists: {move_source.exists()}")
         print(f"  Dest exists: {move_dest.exists()}")
 
-        zo.move_tree(move_source, move_dest)
+        zfs.move_tree(move_source, move_dest)
 
         print("\nAfter move:")
         print(f"  Source exists: {move_source.exists()}")
@@ -199,7 +199,7 @@ def main() -> None:
 
         flat_dest = tmp_path / "flat_dest"
 
-        zo.flatten_tree(flat_source, flat_dest)
+        zfs.flatten_tree(flat_source, flat_dest)
 
         print("Flattened structure:")
         for f in sorted(flat_dest.iterdir()):

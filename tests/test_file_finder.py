@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-import zerofilesystem as zo
+import zerofilesystem as zfs
 
 
 @pytest.fixture
@@ -44,14 +44,14 @@ class TestFindFiles:
 
     def test_find_all_files(self, sample_tree: Path) -> None:
         """Test finding all files recursively."""
-        files = zo.find_files(sample_tree)
+        files = zfs.find_files(sample_tree)
 
         # Should find all files including hidden
         assert len(files) >= 11
 
     def test_find_files_by_extension(self, sample_tree: Path) -> None:
         """Test finding files by extension."""
-        py_files = zo.find_files(sample_tree, pattern="*.py")
+        py_files = zfs.find_files(sample_tree, pattern="*.py")
 
         # setup.py + 2 __init__.py + main.py + utils.py + core.py + 2 test files = 8
         assert len(py_files) == 8  # All .py files
@@ -59,21 +59,21 @@ class TestFindFiles:
 
     def test_find_files_by_name_pattern(self, sample_tree: Path) -> None:
         """Test finding files by name pattern."""
-        test_files = zo.find_files(sample_tree, pattern="test_*.py")
+        test_files = zfs.find_files(sample_tree, pattern="test_*.py")
 
         assert len(test_files) == 2
         assert all(f.name.startswith("test_") for f in test_files)
 
     def test_find_files_non_recursive(self, sample_tree: Path) -> None:
         """Test finding files non-recursively."""
-        files = zo.find_files(sample_tree, pattern="*.py", recursive=False)
+        files = zfs.find_files(sample_tree, pattern="*.py", recursive=False)
 
         assert len(files) == 1  # Only setup.py in root
         assert files[0].name == "setup.py"
 
     def test_find_files_relative_paths(self, sample_tree: Path) -> None:
         """Test finding files with relative paths."""
-        files = zo.find_files(sample_tree, pattern="*.md", absolute=False)
+        files = zfs.find_files(sample_tree, pattern="*.md", absolute=False)
 
         assert len(files) == 3
         # When absolute=False, paths are relative to the base directory
@@ -83,14 +83,14 @@ class TestFindFiles:
 
     def test_find_files_max_results(self, sample_tree: Path) -> None:
         """Test limiting number of results."""
-        files = zo.find_files(sample_tree, pattern="*.py", max_results=3)
+        files = zfs.find_files(sample_tree, pattern="*.py", max_results=3)
 
         assert len(files) == 3
 
     def test_find_files_with_filter(self, sample_tree: Path) -> None:
         """Test finding files with custom filter."""
         # Find Python files NOT starting with test_
-        files = zo.find_files(
+        files = zfs.find_files(
             sample_tree,
             pattern="*.py",
             filter_fn=lambda p: not p.name.startswith("test_"),
@@ -107,7 +107,7 @@ class TestFindFiles:
         large_file.write_text("x" * 1000)
 
         # Find files > 500 bytes
-        files = zo.find_files(
+        files = zfs.find_files(
             sample_tree,
             filter_fn=lambda p: p.stat().st_size > 500,
         )
@@ -117,7 +117,7 @@ class TestFindFiles:
 
     def test_find_files_empty_dir(self, tmp_path: Path) -> None:
         """Test finding files in empty directory."""
-        files = zo.find_files(tmp_path)
+        files = zfs.find_files(tmp_path)
 
         assert files == []
 
@@ -125,13 +125,13 @@ class TestFindFiles:
         """Test finding files in non-existent directory."""
         nonexistent = tmp_path / "nonexistent"
 
-        files = zo.find_files(nonexistent)
+        files = zfs.find_files(nonexistent)
 
         assert files == []
 
     def test_find_files_in_subdirectory(self, sample_tree: Path) -> None:
         """Test finding files in specific subdirectory."""
-        files = zo.find_files(sample_tree / "src", pattern="*.py")
+        files = zfs.find_files(sample_tree / "src", pattern="*.py")
 
         # __init__.py + main.py + utils.py + module/__init__.py + module/core.py = 5
         assert len(files) == 5
@@ -142,7 +142,7 @@ class TestWalkFiles:
 
     def test_walk_files_generator(self, sample_tree: Path) -> None:
         """Test walk_files returns a generator."""
-        result = zo.walk_files(sample_tree)
+        result = zfs.walk_files(sample_tree)
 
         # Should be a generator/iterator
         assert hasattr(result, "__iter__")
@@ -150,14 +150,14 @@ class TestWalkFiles:
 
     def test_walk_files_finds_all(self, sample_tree: Path) -> None:
         """Test walk_files finds all files."""
-        files = list(zo.walk_files(sample_tree, pattern="*.py"))
+        files = list(zfs.walk_files(sample_tree, pattern="*.py"))
 
         assert len(files) == 8  # Same as find_files
 
     def test_walk_files_with_filter(self, sample_tree: Path) -> None:
         """Test walk_files with custom filter."""
         files = list(
-            zo.walk_files(
+            zfs.walk_files(
                 sample_tree,
                 pattern="*.py",
                 filter_fn=lambda p: "init" not in p.name,
@@ -176,7 +176,7 @@ class TestWalkFiles:
 
         # Walk and process lazily
         count = 0
-        for _ in zo.walk_files(tmp_path, pattern="*.txt"):
+        for _ in zfs.walk_files(tmp_path, pattern="*.txt"):
             count += 1
             if count >= 10:
                 break  # Early exit - generator not exhausted
@@ -192,28 +192,28 @@ class TestIsHidden:
         hidden = tmp_path / ".hidden"
         hidden.write_text("hidden")
 
-        assert zo.is_hidden(hidden) is True
+        assert zfs.is_hidden(hidden) is True
 
     def test_is_hidden_normal_file(self, tmp_path: Path) -> None:
         """Test normal files are not hidden."""
         normal = tmp_path / "normal.txt"
         normal.write_text("visible")
 
-        assert zo.is_hidden(normal) is False
+        assert zfs.is_hidden(normal) is False
 
     def test_is_hidden_gitignore(self, tmp_path: Path) -> None:
         """Test .gitignore is detected as hidden."""
         gitignore = tmp_path / ".gitignore"
         gitignore.write_text("*.pyc")
 
-        assert zo.is_hidden(gitignore) is True
+        assert zfs.is_hidden(gitignore) is True
 
     def test_is_hidden_ds_store(self, tmp_path: Path) -> None:
         """Test .DS_Store is detected as hidden."""
         ds_store = tmp_path / ".DS_Store"
         ds_store.write_text("")
 
-        assert zo.is_hidden(ds_store) is True
+        assert zfs.is_hidden(ds_store) is True
 
 
 class TestFindFilesEdgeCases:
@@ -224,7 +224,7 @@ class TestFindFilesEdgeCases:
         special = tmp_path / "file with spaces.txt"
         special.write_text("content")
 
-        files = zo.find_files(tmp_path, pattern="*.txt")
+        files = zfs.find_files(tmp_path, pattern="*.txt")
 
         assert len(files) == 1
         assert files[0].name == "file with spaces.txt"
@@ -234,7 +234,7 @@ class TestFindFilesEdgeCases:
         unicode_file = tmp_path / "日本語ファイル.txt"
         unicode_file.write_text("content")
 
-        files = zo.find_files(tmp_path, pattern="*.txt")
+        files = zfs.find_files(tmp_path, pattern="*.txt")
 
         assert len(files) == 1
 
@@ -244,7 +244,7 @@ class TestFindFilesEdgeCases:
         deep_path.mkdir(parents=True)
         (deep_path / "deep.txt").write_text("deep")
 
-        files = zo.find_files(tmp_path, pattern="*.txt")
+        files = zfs.find_files(tmp_path, pattern="*.txt")
 
         assert len(files) == 1
         assert files[0].name == "deep.txt"
@@ -262,7 +262,7 @@ class TestFindFilesEdgeCases:
         except OSError:
             pytest.skip("Cannot create symlinks on this system")
 
-        files = zo.find_files(tmp_path, pattern="*.txt")
+        files = zfs.find_files(tmp_path, pattern="*.txt")
 
         # Should find both real file and symlink
         assert len(files) >= 1
