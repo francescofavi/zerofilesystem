@@ -5,7 +5,7 @@ description = "Cross-platform file system utilities for Python"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
-authors = [{name = "Francesco Favi", email = "14098835+francescofavi@users.noreply.github.com"}]
+authors = [{name = "Francesco Favi", email = "ffavidev@gmail.com"}]
 keywords = ["filesystem", "files", "io", "cross-platform", "utilities", "pathlib"]
 dependencies = []
 classifiers = [
@@ -25,6 +25,7 @@ Repository = "https://github.com/francescofavi/zerofilesystem"
 Issues = "https://github.com/francescofavi/zerofilesystem/issues"
 Documentation = "https://github.com/francescofavi/zerofilesystem#readme"
 Changelog = "https://github.com/francescofavi/zerofilesystem/blob/main/CHANGELOG.md"
+LinkedIn = "https://www.linkedin.com/in/francesco-favi/"
 
 [build-system]
 requires = ["hatchling"]

@@ -210,10 +210,10 @@ Platform-specific code is isolated:
 - **1 facade class**: `ZeroFS`
 - **4 platform constants**: `IS_WINDOWS`, `IS_MACOS`, `IS_LINUX`, `IS_UNIX`
 - **1 type alias**: `Pathish`
-- **3 stateful classes**: `Finder`, `Watcher`, `FileLock`, `FileTransaction`, `FileWatcher` (legacy)
+- **5 stateful classes**: `Finder`, `Watcher`, `FileLock`, `FileTransaction`, `FileWatcher` (legacy)
 - **2 data types**: `WatchEvent`, `EventType`
-- **9 exceptions**: `ZeroFSError` + 8 subclasses
-- **56 flat functions**: covering I/O, JSON, gzip, discovery, cleanup, sync, hash, metadata, utils, paths, permissions, directories, integrity, security, archives
+- **10 exceptions**: `ZeroFSError` + 9 subclasses
+- **64 flat functions**: covering I/O, JSON, gzip, discovery, cleanup, sync, hash, metadata, utils, paths, permissions, directories, integrity, security, archives
 
 ### Internal (not exported)
 
