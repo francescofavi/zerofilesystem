@@ -107,6 +107,8 @@ pip install -e .
 
 **`read_text(path, encoding="utf-8")`** - Read text file contents.
 ```python
+import zerofilesystem as zfs
+
 # Simple
 content = zfs.read_text("config.txt")
 
@@ -116,6 +118,8 @@ content = zfs.read_text("data.txt", encoding="latin-1")
 
 **`write_text(path, data, atomic=True, create_dirs=True)`** - Write text with atomic safety.
 ```python
+import zerofilesystem as zfs
+
 # Simple
 zfs.write_text("output.txt", "Hello World")
 
@@ -125,6 +129,8 @@ zfs.write_text("logs/app.log", log_data, atomic=False, create_dirs=False)
 
 **`read_json(path)` / `write_json(path, obj)`** - JSON file operations.
 ```python
+import zerofilesystem as zfs
+
 # Simple
 config = zfs.read_json("settings.json")
 
@@ -136,6 +142,8 @@ zfs.write_json("data.json", {"users": users}, indent=4, atomic=True)
 
 **`find_files(base_dir, pattern, filter_fn, recursive, max_results)`** - Find files matching criteria.
 ```python
+import zerofilesystem as zfs
+
 # Simple - find all Python files
 py_files = zfs.find_files("./src", pattern="*.py")
 
@@ -151,6 +159,8 @@ large_logs = zfs.find_files(
 
 **`walk_files(base_dir, pattern)`** - Memory-efficient generator for large directories.
 ```python
+import zerofilesystem as zfs
+
 # Process millions of files without loading all paths
 for path in zfs.walk_files("/data", pattern="*.csv"):
     process_file(path)
@@ -222,6 +232,8 @@ with Watcher("./config").patterns("*.yaml").on_any(reload) as w:
 
 **`FileLock(path, timeout)`** - Cross-platform advisory file lock.
 ```python
+import zerofilesystem as zfs
+
 # Simple - blocking lock
 with zfs.FileLock("/tmp/myapp.lock"):
     do_critical_work()
@@ -238,6 +250,8 @@ except TimeoutError:
 
 **`FileTransaction()`** - Atomic multi-file operations with rollback.
 ```python
+import zerofilesystem as zfs
+
 # Simple
 with zfs.FileTransaction() as tx:
     tx.write_text("a.txt", "content a")
@@ -257,6 +271,8 @@ except Exception:
 
 **`create_zip(source, output)` / `create_tar(source, output)`** - Create archives.
 ```python
+import zerofilesystem as zfs
+
 # Simple
 zfs.create_zip("./project", "backup.zip")
 
@@ -271,6 +287,8 @@ zfs.create_tar(
 
 **`extract(archive, destination)`** - Auto-detect and extract archives.
 ```python
+import zerofilesystem as zfs
+
 # Auto-detects format
 zfs.extract("backup.zip", "./restored")
 zfs.extract("archive.tar.gz", "./restored")
@@ -280,6 +298,8 @@ zfs.extract("archive.tar.gz", "./restored")
 
 **`file_hash(path, algo)`** - Compute file hash.
 ```python
+import zerofilesystem as zfs
+
 # Simple
 sha = zfs.file_hash("document.pdf")
 
@@ -292,6 +312,8 @@ sha = zfs.file_hash("large.iso", algo="sha256", progress_callback=progress)
 
 **`directory_hash(path)`** - Hash entire directory tree.
 ```python
+import zerofilesystem as zfs
+
 # Detect any changes in a directory
 before = zfs.directory_hash("./config")
 # ... operations ...
@@ -304,6 +326,8 @@ if before != after:
 
 **`copy_tree(src, dst)` / `move_tree(src, dst)`** - Recursive directory operations.
 ```python
+import zerofilesystem as zfs
+
 # Simple copy
 result = zfs.copy_tree("./src", "./backup")
 print(f"Copied {len(result.copied)} files")
@@ -319,6 +343,8 @@ result = zfs.copy_tree(
 
 **`sync_dirs(src, dst, delete_extra)`** - Mirror directories.
 ```python
+import zerofilesystem as zfs
+
 # One-way sync, optionally delete extra files in destination
 result = zfs.sync_dirs("./source", "./mirror", delete_extra=True)
 ```
@@ -327,6 +353,8 @@ result = zfs.sync_dirs("./source", "./mirror", delete_extra=True)
 
 **`secure_delete(path, passes)`** - Overwrite before deletion.
 ```python
+import zerofilesystem as zfs
+
 # Simple
 zfs.secure_delete("sensitive.txt")
 
@@ -361,4 +389,4 @@ uv run mypy src
 
 ## License
 
-[MIT License](https://github.com/francescofavi/zerofilesystem/blob/main/LICENSE)
+[MIT License](https://github.com/francescofavi/zerofilesystem/blob/main/LICENSE) Copyright (c) 2025 Francesco Favi
