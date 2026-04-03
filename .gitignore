@@ -40,3 +40,4 @@ venv/
 .setup.sh
 .setup.bat
 .check_quality.py
+/.venv/
