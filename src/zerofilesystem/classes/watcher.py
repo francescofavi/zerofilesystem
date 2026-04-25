@@ -773,10 +773,7 @@ class Watcher:
 WatchEventType = EventType
 
 
-class FileWatcher:  # pragma: no cover -- legacy API kept for backward compat;
-    # the modern Watcher class is fully tested and has the same surface plus
-    # filtering. New code should use Watcher; this class only exists so that
-    # downstream imports do not break across the 0.x cycle.
+class FileWatcher:
     """Legacy file system watcher using polling.
 
     Prefer the modern Watcher class with fluent builder API.

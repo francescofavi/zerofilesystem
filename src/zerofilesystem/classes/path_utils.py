@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from zerofilesystem._platform import Pathish
+from zerofilesystem._platform import IS_WINDOWS, Pathish
 from zerofilesystem.classes.exceptions import InvalidPathError
 
 
@@ -111,8 +111,21 @@ class PathUtils:
 
     @staticmethod
     def normalize_separators(path: Pathish) -> str:
-        """Normalize path separators to POSIX (replace ``\\`` with ``/``)."""
-        return str(path).replace("\\", "/")
+        """
+        Normalize path separators for current OS.
+
+        Args:
+            path: Path with potentially mixed separators
+
+        Returns:
+            Path with native separators
+        """
+        # Replace all separators with native one
+        path_str = str(path)
+        if IS_WINDOWS:
+            return path_str.replace("/", "\\")
+        else:
+            return path_str.replace("\\", "/")
 
     @staticmethod
     def is_subpath(path: Pathish, parent: Pathish) -> bool:

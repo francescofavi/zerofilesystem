@@ -16,7 +16,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import IO, Any
 
-from zerofilesystem._platform import Pathish
+from zerofilesystem._platform import IS_WINDOWS, Pathish
 
 # Atomic Write Helpers
 
@@ -264,26 +264,62 @@ class FileUtils:
 
     @staticmethod
     def safe_filename(name: str, replacement: str = "_") -> str:
-        """Sanitize a filename by replacing characters that cause problems
-        when files cross filesystems or are exposed via shells/web URLs.
+        """Sanitize filename by removing/replacing illegal characters.
 
-        On POSIX only ``/`` and NUL are technically illegal, but we replace
-        the broader Windows-illegal set ``< > : " / \\ | ? *`` and all
-        control characters too — this keeps filenames portable in case the
-        file is later transferred to a non-POSIX target. Leading/trailing
-        spaces and dots are stripped for the same reason.
+        Args:
+            name: Original filename
+            replacement: Character to replace illegal chars with
+
+        Returns:
+            Safe filename
+
+        Platform-specific:
+            - Windows: < > : " / \\ | ? *
+            - Unix/macOS: Only / is illegal, but we sanitize more for consistency
+            - Windows reserved names: CON, PRN, AUX, NUL, COM1-9, LPT1-9
 
         Example:
             safe_filename("file:name*.txt")  # -> "file_name_.txt"
+            safe_filename("CON.txt")         # -> "_CON.txt" (Windows reserved)
         """
         illegal = r'[<>:"/\\|?*]'
         safe = re.sub(illegal, replacement, name)
 
-        # Replace control characters (0x00-0x1F)
+        # Remove control characters (0x00-0x1F)
         safe = re.sub(r"[\x00-\x1f]", replacement, safe)
 
-        # Strip leading/trailing spaces and dots
+        # Strip leading/trailing spaces and dots (Windows issue)
         safe = safe.strip(". ")
+
+        # Windows reserved names
+        if IS_WINDOWS:
+            reserved = {
+                "CON",
+                "PRN",
+                "AUX",
+                "NUL",
+                "COM1",
+                "COM2",
+                "COM3",
+                "COM4",
+                "COM5",
+                "COM6",
+                "COM7",
+                "COM8",
+                "COM9",
+                "LPT1",
+                "LPT2",
+                "LPT3",
+                "LPT4",
+                "LPT5",
+                "LPT6",
+                "LPT7",
+                "LPT8",
+                "LPT9",
+            }
+            base_name = safe.split(".")[0].upper()
+            if base_name in reserved:
+                safe = f"_{safe}"
 
         return safe or "unnamed"
 

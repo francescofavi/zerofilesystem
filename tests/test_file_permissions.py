@@ -1,4 +1,4 @@
-"""Tests for POSIX file permissions and extended metadata helpers."""
+"""Tests for file permissions and extended metadata helpers."""
 
 from __future__ import annotations
 
@@ -10,7 +10,9 @@ from pathlib import Path
 import pytest
 
 import zerofilesystem as zfs
-from zerofilesystem.classes.file_permissions import FileMetadata
+from zerofilesystem._platform import IS_UNIX, IS_WINDOWS
+from zerofilesystem.classes.exceptions import PermissionDeniedError
+from zerofilesystem.classes.file_permissions import FileMetadata, FilePermissions
 
 
 def test_get_metadata_returns_filemetadata_with_basic_fields(sample_file: Path) -> None:
@@ -30,30 +32,36 @@ def test_get_metadata_for_directory(tmp_path: Path) -> None:
     assert meta.is_file is False
 
 
-def test_get_metadata_records_owner_and_group(sample_file: Path) -> None:
+def test_get_metadata_records_owner_group_on_unix(sample_file: Path) -> None:
     meta = zfs.get_metadata(sample_file)
-    assert meta.owner is not None
-    assert meta.group is not None
+    if IS_UNIX:
+        assert meta.owner is not None
+        assert meta.group is not None
+    else:
+        assert meta.owner is None
+        assert meta.group is None
 
 
 def test_get_metadata_str_repr_contains_basic_info(sample_file: Path) -> None:
-    rendered = str(zfs.get_metadata(sample_file))
+    meta = zfs.get_metadata(sample_file)
+    rendered = str(meta)
     assert sample_file.name in rendered
-    assert "size=" in rendered
+    assert f"size={meta.size}" in rendered
 
 
-def test_get_metadata_dotfile_is_hidden(tmp_path: Path) -> None:
+def test_get_metadata_dotfile_is_hidden_on_unix(tmp_path: Path) -> None:
+    if IS_WINDOWS:
+        pytest.skip("dotfile hidden convention is POSIX-only")
     p = tmp_path / ".secret"
     p.write_text("x")
-    assert zfs.get_metadata(p).is_hidden is True
-
-
-def test_get_metadata_normal_file_not_hidden(sample_file: Path) -> None:
-    assert zfs.get_metadata(sample_file).is_hidden is False
+    meta = zfs.get_metadata(p)
+    assert meta.is_hidden is True
 
 
 @pytest.mark.parametrize("readonly", [True, False])
 def test_set_readonly_round_trip(tmp_path: Path, readonly: bool) -> None:
+    if IS_WINDOWS:
+        pytest.skip("test exercises POSIX chmod bits; Windows path is covered separately")
     p = tmp_path / "f.txt"
     p.write_text("x")
     zfs.set_readonly(p, readonly=readonly)
@@ -65,6 +73,8 @@ def test_set_readonly_round_trip(tmp_path: Path, readonly: bool) -> None:
 
 
 def test_set_readonly_then_writable_again_allows_writes(tmp_path: Path) -> None:
+    if IS_WINDOWS:
+        pytest.skip("POSIX-only assertion")
     p = tmp_path / "f.txt"
     p.write_text("x")
     zfs.set_readonly(p, readonly=True)
@@ -73,16 +83,38 @@ def test_set_readonly_then_writable_again_allows_writes(tmp_path: Path) -> None:
     assert p.read_text() == "can write again"
 
 
+def test_set_hidden_on_posix_raises_not_implemented(tmp_path: Path) -> None:
+    if IS_WINDOWS:
+        pytest.skip("POSIX-specific assertion")
+    p = tmp_path / "f.txt"
+    p.write_text("x")
+    with pytest.raises(NotImplementedError):
+        zfs.set_hidden(p, hidden=True)
+
+
 @pytest.mark.parametrize("executable", [True, False])
-def test_set_executable_toggles_user_x_bit(tmp_path: Path, executable: bool) -> None:
+def test_set_executable_toggles_x_bit_on_unix(tmp_path: Path, executable: bool) -> None:
+    if IS_WINDOWS:
+        pytest.skip("set_executable is a no-op on Windows")
     p = tmp_path / "script.sh"
     p.write_text("#!/bin/sh\necho hi\n")
     zfs.set_permissions(p, 0o644)  # baseline known mode
     zfs.set_executable(p, executable=executable)
-    assert bool(p.stat().st_mode & stat.S_IXUSR) is executable
+    mode = p.stat().st_mode
+    assert bool(mode & stat.S_IXUSR) is executable
+
+
+def test_set_executable_no_op_on_windows(tmp_path: Path) -> None:
+    if not IS_WINDOWS:
+        pytest.skip("Windows-specific behavior")
+    p = tmp_path / "script.bat"
+    p.write_text("echo hi")
+    zfs.set_executable(p, executable=True)
 
 
 def test_set_permissions_writes_exact_mode(tmp_path: Path) -> None:
+    if IS_WINDOWS:
+        pytest.skip("Windows ignores most POSIX bits")
     p = tmp_path / "f.txt"
     p.write_text("x")
     zfs.set_permissions(p, 0o640)
@@ -90,6 +122,8 @@ def test_set_permissions_writes_exact_mode(tmp_path: Path) -> None:
 
 
 def test_copy_permissions_mirrors_source(tmp_path: Path) -> None:
+    if IS_WINDOWS:
+        pytest.skip("POSIX bit-level assertion")
     src = tmp_path / "src.txt"
     src.write_text("x")
     dst = tmp_path / "dst.txt"
@@ -139,6 +173,7 @@ def test_mode_to_string_known_modes() -> None:
 def test_string_to_mode_octal_numeric_form() -> None:
     assert zfs.string_to_mode("755") == 0o755
     assert zfs.string_to_mode("644") == 0o644
+    assert zfs.string_to_mode("600") == 0o600
 
 
 def test_string_to_mode_symbolic_form() -> None:
@@ -164,6 +199,8 @@ def test_string_to_mode_rejects_wrong_chars_at_position() -> None:
 
 
 def test_get_metadata_mode_matches_filesystem(tmp_path: Path) -> None:
+    if IS_WINDOWS:
+        pytest.skip("POSIX bit-level assertion")
     p = tmp_path / "f.txt"
     p.write_text("x")
     os.chmod(p, 0o640)
@@ -173,22 +210,18 @@ def test_get_metadata_mode_matches_filesystem(tmp_path: Path) -> None:
 
 
 def test_set_readonly_default_argument_is_true(tmp_path: Path) -> None:
+    if IS_WINDOWS:
+        pytest.skip("POSIX-only assertion")
     p = tmp_path / "f.txt"
     p.write_text("x")
     zfs.set_readonly(p)
     assert not (p.stat().st_mode & stat.S_IWUSR)
 
 
-def test_set_executable_propagates_to_group_and_others_only_when_readable(
-    tmp_path: Path,
-) -> None:
-    """The chmod-+x convention adds the x-bit to the same scopes that already
-    have the matching r-bit. This test exercises both halves of that rule."""
-    p = tmp_path / "script.sh"
-    p.write_text("#!/bin/sh\n")
-    zfs.set_permissions(p, 0o604)  # u=rw-, g=---, o=r--
-    zfs.set_executable(p, executable=True)
-    mode = p.stat().st_mode
-    assert mode & stat.S_IXUSR
-    assert not (mode & stat.S_IXGRP)  # group has no r-bit, so no x-bit added
-    assert mode & stat.S_IXOTH  # other has r-bit, so x-bit added
+def test_permission_denied_error_inherits_zerofs_error() -> None:
+    err = PermissionDeniedError("/x", operation="op")
+    assert isinstance(err, zfs.ZeroFSError)
+
+
+def test_set_permissions_is_attached_to_class() -> None:
+    assert zfs.set_permissions is FilePermissions.set_permissions

@@ -11,6 +11,8 @@ from pathlib import Path
 
 import pytest
 
+from zerofilesystem._platform import IS_WINDOWS
+
 SAMPLE_TEXT = "Hello, world!\nLine 2\nUnicode: àèìòù 日本 🚀\n"
 SAMPLE_BYTES = b"\x00\x01\x02\x03\xff\xfe\xfd"
 
@@ -40,7 +42,7 @@ def populated_tree(tmp_path: Path) -> Path:
         tmp_path/tree/
         ├── a.txt          (10 bytes)
         ├── b.log          (20 bytes)
-        ├── .hidden        (5 bytes, hidden by POSIX convention)
+        ├── .hidden        (5 bytes, hidden by Unix convention)
         └── sub/
             ├── c.txt      (15 bytes)
             ├── d.py       (30 bytes)
@@ -68,3 +70,17 @@ def empty_dir(tmp_path: Path) -> Path:
     d = tmp_path / "empty"
     d.mkdir()
     return d
+
+
+@pytest.fixture
+def skip_on_windows() -> None:
+    """Skip the test when running on Windows (POSIX-only behavior)."""
+    if IS_WINDOWS:
+        pytest.skip("POSIX-only behavior")
+
+
+@pytest.fixture
+def skip_on_posix() -> None:
+    """Skip the test when running on POSIX (Windows-only behavior)."""
+    if not IS_WINDOWS:
+        pytest.skip("Windows-only behavior")

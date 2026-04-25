@@ -6,11 +6,17 @@ to avoid code duplication.
 
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from zerofilesystem._platform import IS_WINDOWS
+
 # Shared Constants
+
+FILE_ATTRIBUTE_HIDDEN: int = 0x2
+FILE_ATTRIBUTE_READONLY: int = 0x1
 
 MAX_RENAME_CONFLICTS: int = 10000
 
@@ -83,5 +89,15 @@ def parse_datetime(dt: datetime | str | timedelta) -> datetime:
 
 
 def is_hidden(path: Path) -> bool:
-    """Check if a file is hidden — POSIX dotfile convention."""
-    return path.name.startswith(".")
+    """Check if file is hidden (cross-platform)."""
+    if path.name.startswith("."):
+        return True
+
+    if IS_WINDOWS:
+        try:
+            attrs = os.stat(path).st_file_attributes  # type: ignore[attr-defined]
+            return bool(attrs & FILE_ATTRIBUTE_HIDDEN)
+        except (AttributeError, OSError):
+            return False
+
+    return False
