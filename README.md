@@ -1,90 +1,44 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/francescofavi/zerofilesystem/main/logo.png" alt="ZeroFileSystem" width="200">
+  <img src="https://raw.githubusercontent.com/francescofavi/zerofilesystem/main/logo.png" alt="zerofilesystem" width="200">
 </p>
 
-# ZeroFileSystem
+# zerofilesystem
 
-[![CI](https://github.com/francescofavi/zerofilesystem/actions/workflows/ci.yml/badge.svg)](https://github.com/francescofavi/zerofilesystem/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/francescofavi/zerofilesystem/ci.yml?branch=main&label=CI&cacheSeconds=0)](https://github.com/francescofavi/zerofilesystem/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/zerofilesystem.svg?cacheSeconds=0)](https://pypi.org/project/zerofilesystem/)
 [![Python versions](https://img.shields.io/pypi/pyversions/zerofilesystem.svg?cacheSeconds=0)](https://pypi.org/project/zerofilesystem/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?cacheSeconds=0)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?cacheSeconds=0)](https://github.com/francescofavi/zerofilesystem/blob/main/LICENSE)
 [![Status](https://img.shields.io/pypi/status/zerofilesystem.svg?cacheSeconds=0)](https://pypi.org/project/zerofilesystem/)
 [![Typed](https://img.shields.io/badge/typed-PEP%20561-blue.svg?cacheSeconds=0)](https://peps.python.org/pep-0561/)
 [![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?cacheSeconds=0)]()
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg?cacheSeconds=0)](https://docs.astral.sh/ruff/)
 
-Cross-platform file system utilities for Python 3.12+
+Cross-platform file system utilities for Python 3.12+. Zero runtime dependencies.
 
-## Why This Project Exists
+## Problem
 
-Working with files in Python often requires combining multiple standard library modules (`os`, `shutil`, `pathlib`, `json`, `gzip`, `tarfile`, `zipfile`) with careful attention to platform differences, atomic operations, and error handling. **zerofilesystem** consolidates these operations into a single, cohesive library that handles the complexity for you.
+Reliable file handling in Python normally means stitching together `os`, `shutil`, `pathlib`, `json`, `gzip`, `tarfile`, `zipfile`, `hashlib`, `fcntl`/`msvcrt`, `tempfile` and `secrets`, then carefully wrapping each operation to make it atomic, cross-platform, and crash-safe. The pain shows up in three recurring places: writes that can be left half-finished if the process dies, multi-file operations that have no rollback when one of them fails, and platform-specific behavior — file locking, hidden attributes, executable bits, path normalization — that has to be re-derived in every project.
 
-The library solves common pain points: ensuring atomic writes don't corrupt files on crash, managing cross-platform file locking, handling path normalization across Windows and Unix, and providing transactional file operations with automatic rollback. Whether you're building a configuration manager, a backup utility, or any application that needs reliable file operations, zerofilesystem provides battle-tested primitives that work consistently across platforms.
+The cost of getting these right is rarely the headline feature, but the cost of getting them wrong is corrupted config files, partial deploys, and "works on Linux, breaks on Windows" bug reports.
 
-## Technical Choices and Design
+## Solution
 
-zerofilesystem uses **only the Python standard library** with no external dependencies. This deliberate choice ensures maximum compatibility, minimal installation footprint, and no dependency conflicts.
+`zerofilesystem` consolidates these primitives behind a single, flat API and makes safe behavior the default. Atomic writes are on by default (temp file plus `os.replace`). `FileTransaction` groups multiple writes/copies/deletes under a single commit-or-rollback umbrella. `FileLock` exposes one cross-platform locking interface backed by `fcntl` on Unix/macOS and `msvcrt` on Windows. `Finder` and `Watcher` provide fluent builder APIs for filtered search and polling-based monitoring. Archive extraction guards against zip-slip path traversal. Every public function accepts both `str` and `pathlib.Path`.
 
-The library is organized around single-responsibility classes, each handling one category of file operations. All public functions accept both `str` and `pathlib.Path` objects via the `Pathish` type alias. Atomic operations use the temp-file-plus-rename pattern to ensure crash safety on POSIX-compliant filesystems.
+The library is built on the standard library only — no external runtime dependencies — and ships a `py.typed` marker for full PEP 561 typing.
 
-Platform-specific behavior (file locking via `fcntl`/`msvcrt`, hidden file attributes, executable permissions) is abstracted behind unified APIs that do the right thing on each platform.
+## What it gives you
 
-## High-Level Component Overview
-
-The library is structured into functional modules:
-
-- **Basic I/O** (`FileIO`, `JsonHandler`, `GzipHandler`) - Text and binary file reading/writing with atomic support, JSON serialization, and gzip compression
-- **File Discovery** (`FileFinder`, `Finder`) - Glob-based file search with custom filters and lazy iteration; `Finder` provides a fluent builder API
-- **File Operations** (`FileSync`, `FileHasher`, `FileMeta`, `FileUtils`) - Conditional copy/move, cryptographic hashing, metadata access, and filename sanitization
-- **Path Utilities** (`PathUtils`) - Cross-platform path normalization, expansion, and validation
-- **Permissions** (`FilePermissions`) - Read/write/execute attributes and timestamp manipulation
-- **Directory Operations** (`DirectoryOps`) - Tree copy, move, sync, and temporary directories
-- **Integrity** (`IntegrityChecker`) - Directory hashing, manifest creation, and verification
-- **Transactions** (`FileTransaction`) - Multi-file atomic operations with rollback
-- **Security** (`SecureOps`) - Secure file deletion and private directory creation
-- **Archives** (`ArchiveHandler`) - Tar and zip creation/extraction with filtering
-- **File Watching** (`FileWatcher`, `Watcher`) - Polling-based filesystem monitoring; `Watcher` provides a fluent builder API with debouncing
-- **Locking** (`FileLock`) - Cross-platform advisory file locking
-
-## Meaningful Usage Example
-
-Here's a realistic example showing how zerofilesystem components work together to create a simple backup system with integrity verification:
-
-```python
-import zerofilesystem as zfs
-
-# Create a backup of a project directory
-source_dir = "./my_project"
-backup_dir = "./backups"
-
-# Create timestamped backup archive
-zfs.ensure_dir(backup_dir)
-archive_path = zfs.create_zip(
-    source_dir,
-    f"{backup_dir}/backup_2024.zip",
-    filter_fn=lambda p: not p.name.startswith("."),  # Exclude hidden files
-    compression="deflated"
-)
-
-# Generate integrity manifest for verification
-manifest = zfs.create_manifest(source_dir, algorithm="sha256")
-zfs.save_manifest(manifest, f"{backup_dir}/backup_2024.manifest")
-
-# Later: verify the backup matches the manifest
-loaded_manifest, algo = zfs.load_manifest(f"{backup_dir}/backup_2024.manifest")
-result = zfs.verify_manifest(source_dir, loaded_manifest, algorithm=algo)
-
-if result.is_valid:
-    print("Backup integrity verified!")
-else:
-    print(f"Modified: {result.modified}, Missing: {result.missing}")
-
-# Use transactions for multi-file config updates
-with zfs.FileTransaction() as tx:
-    tx.write_text("config/app.json", '{"version": 2}')
-    tx.write_text("config/db.json", '{"host": "localhost"}')
-    # Both files written atomically, or neither if an error occurs
-```
+- **Atomic text/binary/JSON writes** — temp file + atomic rename, on by default. `zfs.write_text("config.json", data)`.
+- **Multi-file transactions** — commit several writes/copies/deletes together, automatic rollback on error. `with zfs.FileTransaction() as tx: ...`.
+- **Cross-platform file locking** — same interface on Unix and Windows, with optional timeout. `with zfs.FileLock("/tmp/app.lock", timeout=5): ...`.
+- **Fluent file finder** — patterns, exclusions, size/date/permission filters, depth limits. `Finder("./src").patterns("*.py").modified_last_days(7).find()`.
+- **Polling file watcher** — created/modified/deleted callbacks with debouncing and the same filter vocabulary as `Finder`.
+- **Integrity verification** — `directory_hash`, `create_manifest`/`verify_manifest`, `compare_directories`, `snapshot_hash`.
+- **Archives** — tar (gz/bz2/xz) and zip create/extract with filtering, base-dir control, and zip-slip protection.
+- **Secure operations** — `secure_delete` (multi-pass overwrite), `private_directory` (0o700), `create_private_file` (0o600).
+- **Path utilities** — normalize, expand `~`/env vars, validate, posix conversion, subpath checks.
+- **Permissions and metadata** — `FileMetadata` dataclass, readonly/hidden/executable toggles, octal-mode parsing.
 
 ## Installation
 
@@ -92,305 +46,138 @@ with zfs.FileTransaction() as tx:
 pip install zerofilesystem
 ```
 
-Or install from source:
-
 ```bash
-git clone https://github.com/francescofavi/zerofilesystem.git
-cd zerofilesystem
-pip install -e .
+uv add zerofilesystem
 ```
 
-### Requirements
+Requires Python 3.12+. No runtime dependencies.
 
-- **Python 3.12+**
-- **No external dependencies** - uses only the Python standard library
+## Quick start
 
-## Main Functions and APIs
-
-### File I/O
-
-**`read_text(path, encoding="utf-8")`** - Read text file contents.
 ```python
 import zerofilesystem as zfs
 
-# Simple
-content = zfs.read_text("config.txt")
+# Atomic JSON write
+zfs.write_json("config/app.json", {"version": 2})
 
-# With encoding
-content = zfs.read_text("data.txt", encoding="latin-1")
-```
+# Multi-file transaction with automatic rollback
+with zfs.FileTransaction() as tx:
+    tx.write_text("config/app.json", '{"version": 3}')
+    tx.write_text("config/db.json", '{"host": "localhost"}')
+    # Both files committed atomically on exit
 
-**`write_text(path, data, atomic=True, create_dirs=True)`** - Write text with atomic safety.
-```python
-import zerofilesystem as zfs
+# Cross-platform locking
+with zfs.FileLock("/tmp/myapp.lock", timeout=5):
+    # Critical section — held across processes
+    ...
 
-# Simple
-zfs.write_text("output.txt", "Hello World")
-
-# Non-atomic write to existing directory
-zfs.write_text("logs/app.log", log_data, atomic=False, create_dirs=False)
-```
-
-**`read_json(path)` / `write_json(path, obj)`** - JSON file operations.
-```python
-import zerofilesystem as zfs
-
-# Simple
-config = zfs.read_json("settings.json")
-
-# Write with custom formatting
-zfs.write_json("data.json", {"users": users}, indent=4, atomic=True)
-```
-
-### File Discovery
-
-**`find_files(base_dir, pattern, filter_fn, recursive, max_results)`** - Find files matching criteria.
-```python
-import zerofilesystem as zfs
-
-# Simple - find all Python files
-py_files = zfs.find_files("./src", pattern="*.py")
-
-# Complex - find large log files, limit results
-large_logs = zfs.find_files(
-    "./logs",
-    pattern="*.log",
-    filter_fn=lambda p: p.stat().st_size > 1024 * 1024,
-    recursive=True,
-    max_results=100
-)
-```
-
-**`walk_files(base_dir, pattern)`** - Memory-efficient generator for large directories.
-```python
-import zerofilesystem as zfs
-
-# Process millions of files without loading all paths
-for path in zfs.walk_files("/data", pattern="*.csv"):
-    process_file(path)
-```
-
-### Finder (Fluent API)
-
-**`Finder(base_dir)`** - Powerful file finder with fluent builder API.
-```python
+# Fluent file search
 from zerofilesystem import Finder
-
-# Find Python files modified in last 7 days
-files = (Finder("./src")
+recent_py = (
+    Finder("./src")
     .patterns("*.py")
     .modified_last_days(7)
     .not_hidden()
-    .find())
-
-# Complex search with multiple filters
-files = (Finder("./project")
-    .patterns("*.py", "*.json")
-    .exclude("__pycache__", ".git", "*.pyc")
-    .size_min("1KB")
-    .size_max("10MB")
-    .not_empty()
-    .max_depth(5)
-    .limit(100)
-    .find())
-
-# Memory-efficient iteration
-for path in Finder("./logs").patterns("*.log").walk():
-    process_log(path)
-
-# Quick checks
-count = Finder("./src").patterns("*.py").count()
-has_tests = Finder("./tests").patterns("test_*.py").exists()
-```
-
-### Watcher (Fluent API)
-
-**`Watcher(base_dir)`** - File system watcher with fluent builder API and debouncing.
-```python
-from zerofilesystem import Watcher, EventType
-
-# Simple watch
-watcher = (Watcher("./src")
-    .patterns("*.py")
-    .on_any(lambda e: print(f"{e.type.name}: {e.path}"))
-    .start())
-
-# Watch with filtering and debouncing
-watcher = (Watcher("./project")
-    .patterns("*.py", "*.json")
-    .exclude("__pycache__", ".git")
-    .not_hidden()
-    .poll_fast()           # 0.1 second polling
-    .debounce(0.5)         # Wait 500ms after last change
-    .on_created(handle_new)
-    .on_modified(handle_change)
-    .on_deleted(handle_remove)
-    .start())
-
-# Context manager
-with Watcher("./config").patterns("*.yaml").on_any(reload) as w:
-    run_server()  # Watcher stops automatically on exit
-```
-
-### File Locking
-
-**`FileLock(path, timeout)`** - Cross-platform advisory file lock.
-```python
-import zerofilesystem as zfs
-
-# Simple - blocking lock
-with zfs.FileLock("/tmp/myapp.lock"):
-    do_critical_work()
-
-# With timeout
-try:
-    with zfs.FileLock("/tmp/myapp.lock", timeout=5.0):
-        do_critical_work()
-except TimeoutError:
-    print("Could not acquire lock")
-```
-
-### Transactions
-
-**`FileTransaction()`** - Atomic multi-file operations with rollback.
-```python
-import zerofilesystem as zfs
-
-# Simple
-with zfs.FileTransaction() as tx:
-    tx.write_text("a.txt", "content a")
-    tx.write_text("b.txt", "content b")
-
-# With explicit control
-tx = zfs.FileTransaction()
-try:
-    tx.write_text("config.json", new_config)
-    tx.copy_file("template.txt", "output.txt")
-    tx.commit()
-except Exception:
-    tx.rollback()
-```
-
-### Archives
-
-**`create_zip(source, output)` / `create_tar(source, output)`** - Create archives.
-```python
-import zerofilesystem as zfs
-
-# Simple
-zfs.create_zip("./project", "backup.zip")
-
-# With compression and filtering
-zfs.create_tar(
-    "./data",
-    "archive.tar.gz",
-    compression="gz",
-    filter_fn=lambda p: p.suffix != ".tmp"
+    .exclude("__pycache__")
+    .find()
 )
+
+# Integrity manifest
+manifest = zfs.create_manifest("./src", algorithm="sha256")
+zfs.save_manifest(manifest, "src.manifest")
+result = zfs.verify_manifest("./src", manifest)
+assert result.is_valid
 ```
 
-**`extract(archive, destination)`** - Auto-detect and extract archives.
-```python
-import zerofilesystem as zfs
+More runnable examples in [`examples/`](https://github.com/francescofavi/zerofilesystem/tree/main/examples).
 
-# Auto-detects format
-zfs.extract("backup.zip", "./restored")
-zfs.extract("archive.tar.gz", "./restored")
+## Comparison with alternatives
+
+The standard library provides every primitive `zerofilesystem` uses; the value is in combining them safely under one API. Third-party libraries cover individual slices.
+
+| Library              | Atomic writes | Transactions | Cross-platform lock | Fluent finder | File watcher | Integrity manifest | Archives | Runtime deps |
+|----------------------|:-------------:|:------------:|:-------------------:|:-------------:|:------------:|:------------------:|:--------:|:------------:|
+| **zerofilesystem**   |       ✓       |      ✓       |          ✓          |       ✓       |   polling    |          ✓         |  tar+zip |    none      |
+| `pathlib` + `shutil` (stdlib) | manual | — | — | basic glob | — | manual | tar+zip | none |
+| [`filelock`](https://pypi.org/project/filelock/) | — | — | ✓ | — | — | — | — | none |
+| [`portalocker`](https://pypi.org/project/portalocker/) | — | — | ✓ | — | — | — | — | none |
+| [`watchdog`](https://pypi.org/project/watchdog/) | — | — | — | — | native FSEvents/inotify | — | — | yes |
+| [`send2trash`](https://pypi.org/project/send2trash/) | — | — | — | — | — | — | — | varies |
+| [`aiofiles`](https://pypi.org/project/aiofiles/) | — | — | — | — | — | — | — | yes |
+
+`watchdog` is the right choice when you need real-time filesystem events; `zerofilesystem`'s `Watcher` is a polling implementation and trades latency for portability and zero dependencies.
+
+## Known limits and open issues
+
+These are derived from the code and are not blockers for normal use; pick the library only if they fit your scenario.
+
+- *limit:* `Watcher` and `FileWatcher` poll the filesystem (`time.sleep(poll_interval)`) — there is no inotify/FSEvents/ReadDirectoryChangesW backend, so events are bounded by the configured poll interval (default 1.0s).
+- *limit:* `secure_delete` is best-effort — modern SSDs with wear leveling, journaling filesystems, and OS-level page cache may retain copies. The docstring says so explicitly. Use full-disk encryption for true confidentiality.
+- *limit:* `move_if_absent` is documented as non-atomic — there is a race window between the `exists()` check and `shutil.move()`. Use `FileLock` if you need cross-process exclusivity.
+- *limit:* `copy_if_newer` uses a 1-second epsilon on `st_mtime` to tolerate filesystem timestamp granularity, so sub-second updates can be missed.
+- *limit:* `FilePermissions.set_hidden()` raises `NotImplementedError` on Unix — hiding a file there requires renaming with a leading dot.
+- *limit:* archive extraction silently skips members that would escape the destination (path traversal protection) instead of raising — call `list_archive` first if you need to verify contents.
+- *open:* `CHANGELOG.md` currently stops at `0.1.1` while `src/zerofilesystem/__init__.py` declares `__version__ = "0.1.3"` — release-please should reconcile this on the next release.
+- *design:* no `async`/`await` variants — every operation is blocking. Wrap in a thread executor if you need to drive I/O from an event loop.
+
+A deeper, per-component breakdown lives outside the public docs.
+
+## Anti-patterns — how NOT to use this project
+
+A short list of misuses that the library does not protect you from.
+
+- Do not use `FileLock` to coordinate threads inside one process — it is a process-level OS lock; use `threading.Lock` for intra-process synchronization.
+- Do not call `secure_delete` and assume the data is unrecoverable on SSD or any journaling filesystem — see *Known limits*.
+- Do not rely on `move_if_absent(on_conflict="skip")` for atomic "move only if missing" — combine it with `FileLock` if more than one process can race.
+- Do not share one `FileTransaction` instance between threads or call `commit()` more than once — a committed/rolled-back transaction refuses further operations.
+- Do not start a `Watcher` and forget about it — it spawns a daemon thread; call `.stop()` or use the `with` block.
+- Do not use `Finder`/`Watcher` with `poll_fast()` (0.1s) on a tree of tens of thousands of files — every tick re-walks the tree and re-stats every match.
+- Do not pass mismatched algorithms to `verify_manifest` — the manifest stores its algorithm; pass the value returned by `load_manifest` instead of hardcoding.
+- Do not extract an archive into a directory that contains files you care about — extraction overwrites colliding paths without prompting.
+
+## Running tests
+
+```bash
+uv sync
+uv run pytest
 ```
 
-### Integrity Checking
+The suite collects 207 tests across 9 modules, covering archives, finder, watcher, file locks, transactions, JSON, path utils, and basic I/O.
 
-**`file_hash(path, algo)`** - Compute file hash.
-```python
-import zerofilesystem as zfs
+## Running examples
 
-# Simple
-sha = zfs.file_hash("document.pdf")
+Each script under `examples/` is self-contained and runnable:
 
-# With progress callback for large files
-def progress(done, total):
-    print(f"\r{done}/{total} bytes", end="")
-
-sha = zfs.file_hash("large.iso", algo="sha256", progress_callback=progress)
+```bash
+uv run python examples/01_basic_io.py
+uv run python examples/09_finder.py
+uv run python examples/10_watcher.py
 ```
 
-**`directory_hash(path)`** - Hash entire directory tree.
-```python
-import zerofilesystem as zfs
-
-# Detect any changes in a directory
-before = zfs.directory_hash("./config")
-# ... operations ...
-after = zfs.directory_hash("./config")
-if before != after:
-    print("Configuration changed!")
-```
-
-### Directory Operations
-
-**`copy_tree(src, dst)` / `move_tree(src, dst)`** - Recursive directory operations.
-```python
-import zerofilesystem as zfs
-
-# Simple copy
-result = zfs.copy_tree("./src", "./backup")
-print(f"Copied {len(result.copied)} files")
-
-# Sync with conflict handling
-result = zfs.copy_tree(
-    "./new_version",
-    "./deploy",
-    on_conflict="only_if_newer",
-    preserve_metadata=True
-)
-```
-
-**`sync_dirs(src, dst, delete_extra)`** - Mirror directories.
-```python
-import zerofilesystem as zfs
-
-# One-way sync, optionally delete extra files in destination
-result = zfs.sync_dirs("./source", "./mirror", delete_extra=True)
-```
-
-### Secure Operations
-
-**`secure_delete(path, passes)`** - Overwrite before deletion.
-```python
-import zerofilesystem as zfs
-
-# Simple
-zfs.secure_delete("sensitive.txt")
-
-# Multiple passes with random data
-zfs.secure_delete("credentials.json", passes=7, random_data=True)
-```
+See [`examples/`](https://github.com/francescofavi/zerofilesystem/tree/main/examples) for the full list (basic I/O, JSON, discovery, locking, transactions, archives, directory ops, finder, watcher).
 
 ## Development
 
-This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
+Contributor setup, lint/type/test commands, pre-commit hooks, commit conventions, and the release process are documented in [docs/DEVELOPMENT.md](https://github.com/francescofavi/zerofilesystem/blob/main/docs/DEVELOPMENT.md).
 
-```bash
-# Install dependencies
-uv sync
+## Documentation map
 
-# Run tests
-uv run pytest
+User documentation:
 
-# Linting and formatting
-uv run ruff check .
-uv run ruff format .
+- [README.md](https://github.com/francescofavi/zerofilesystem/blob/main/README.md) — this file.
+- [docs/USER_GUIDE.md](https://github.com/francescofavi/zerofilesystem/blob/main/docs/USER_GUIDE.md) — extended self-sufficient user guide.
+- [docs/ANTI_PATTERNS.md](https://github.com/francescofavi/zerofilesystem/blob/main/docs/ANTI_PATTERNS.md) — how NOT to use the library, with the correct alternatives.
 
-# Type checking
-uv run mypy src
-```
+Developer documentation:
 
-## Further Documentation
+- [docs/DEVELOPMENT.md](https://github.com/francescofavi/zerofilesystem/blob/main/docs/DEVELOPMENT.md) — contributor setup, tooling, release process.
+- [docs/ARCHITECTURE.md](https://github.com/francescofavi/zerofilesystem/blob/main/docs/ARCHITECTURE.md) — modules, dependency graph, design decisions.
+- [docs/API_REFERENCE.md](https://github.com/francescofavi/zerofilesystem/blob/main/docs/API_REFERENCE.md) — every public symbol, verbatim signatures.
 
-- [Full API Reference](https://github.com/francescofavi/zerofilesystem/blob/main/docs/API_REFERENCE.md) - Detailed documentation of all public functions, parameters, and return types
-- [Architecture](https://github.com/francescofavi/zerofilesystem/blob/main/docs/ARCHITECTURE.md) - Internal structure, module organization, dependency graph, and design decisions
-- [Functional Analysis](https://github.com/francescofavi/zerofilesystem/blob/main/docs/FUNCTIONAL_ANALYSIS.md) - High-level view of processes, flows, and feature mapping
+## Contributing
+
+Personal portfolio project. Issue reports and small PRs (typo fixes, doc improvements, additional tests for existing behavior) are welcome; larger changes may not be accepted to keep the library focused. Please open an issue first if you want to discuss a non-trivial change.
 
 ## License
 
-[MIT License](https://github.com/francescofavi/zerofilesystem/blob/main/LICENSE) Copyright (c) 2025 Francesco Favi
+[MIT License](https://github.com/francescofavi/zerofilesystem/blob/main/LICENSE) — Copyright (c) 2025 Francesco Favi.

@@ -11,9 +11,10 @@ htmlcov/
 # All hidden directories (starts with .)
 .*/
 
-# Keep .gitignore and .github
+# Keep .gitignore, .github, and .internal_docs (maintainer-only docs, not shipped to PyPI)
 !.gitignore
 !.github/
+!.internal_docs/
 
 # Hidden files to ignore
 .DS_Store

@@ -55,6 +55,7 @@ exclude = [
     "/.release-please-manifest.json",
     "/uv.lock",
     "/tests/**",
+    "/.internal_docs/**",
 ]
 
 [tool.uv]

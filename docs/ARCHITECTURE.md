@@ -261,4 +261,4 @@ Standard library exceptions (`FileNotFoundError`, `PermissionError`, `TimeoutErr
 
 **Beta** (`Development Status :: 4 - Beta` in pyproject.toml).
 
-Current version: `0.1.0`.
+Current version: `0.1.3` (declared in `src/zerofilesystem/__init__.py`, read by Hatch via `[tool.hatch.version]`).
