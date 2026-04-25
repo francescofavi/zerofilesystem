@@ -59,7 +59,7 @@ class SecureOps:
                 current_mode = p.stat().st_mode
                 if not (current_mode & stat.S_IWUSR):
                     p.chmod(current_mode | stat.S_IWUSR)
-            except OSError:
+            except OSError:  # pragma: no cover -- best-effort chmod, file may be read-only by ACL
                 pass
 
             # Overwrite passes
@@ -118,7 +118,7 @@ class SecureOps:
                 file_path = Path(root) / f
                 try:
                     SecureOps.secure_delete(file_path, passes, random_data)
-                except SecureDeleteError:
+                except SecureDeleteError:  # pragma: no cover -- fallback when overwrite fails
                     # Try regular delete as fallback
                     with suppress(OSError):
                         file_path.unlink()

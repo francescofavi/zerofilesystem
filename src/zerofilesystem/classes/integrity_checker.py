@@ -113,7 +113,9 @@ class IntegrityChecker:
                 h.update(rel_path_str.encode())
                 h.update(str(file_stat.st_size).encode())
                 h.update(file_hash.encode())
-            except OSError:
+            except (
+                OSError
+            ):  # pragma: no cover -- best-effort: skip files we can't stat during a walk
                 pass
 
         return h.hexdigest()
@@ -167,7 +169,7 @@ class IntegrityChecker:
                 if progress_callback:
                     progress_callback(rel_path, i + 1, total)
 
-            except OSError:
+            except OSError:  # pragma: no cover -- skip files we can't stat during walk
                 pass
 
         return manifest

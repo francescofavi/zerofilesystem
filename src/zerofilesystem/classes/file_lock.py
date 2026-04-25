@@ -79,7 +79,7 @@ class FileLock:
         self.fd = os.open(self.lock_path, os.O_CREAT | os.O_RDWR, 0o644)
 
         try:
-            if IS_WINDOWS:
+            if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
                 self._acquire_windows()
             else:
                 self._acquire_unix()
@@ -117,7 +117,9 @@ class FileLock:
                         ) from e
                     time.sleep(LOCK_POLL_INTERVAL)
 
-    def _acquire_windows(self) -> None:
+    def _acquire_windows(
+        self,
+    ) -> None:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
         """Acquire lock on Windows using msvcrt."""
         import msvcrt
 
@@ -151,7 +153,7 @@ class FileLock:
             return
 
         try:
-            if IS_WINDOWS:
+            if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
                 import msvcrt
 
                 msvcrt.locking(self.fd, msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]

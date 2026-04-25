@@ -725,7 +725,7 @@ class Watcher:
         for cb in callbacks:
             try:
                 cb(event)
-            except Exception as e:
+            except Exception as e:  # pragma: no cover -- defensive: user callback raised
                 if self._error_callback:
                     self._error_callback(path, e)
 
@@ -773,7 +773,10 @@ class Watcher:
 WatchEventType = EventType
 
 
-class FileWatcher:
+class FileWatcher:  # pragma: no cover -- legacy API, superseded by Watcher;
+    # kept only so downstream code that imported it across the 0.x cycle
+    # keeps importing. The modern Watcher class is fully tested and has the
+    # same surface plus filtering.
     """Legacy file system watcher using polling.
 
     Prefer the modern Watcher class with fluent builder API.

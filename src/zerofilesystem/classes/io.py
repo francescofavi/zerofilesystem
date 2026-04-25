@@ -292,7 +292,7 @@ class FileUtils:
         safe = safe.strip(". ")
 
         # Windows reserved names
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
             reserved = {
                 "CON",
                 "PRN",

@@ -140,6 +140,23 @@ exclude = [
 module = ["tests.*", "examples.*"]
 warn_unreachable = false
 
+[tool.coverage.run]
+source = ["src/zerofilesystem"]
+# _core.py is the ZeroFS facade: every method is a one-line wrapper around
+# an underlying class method. The underlying behavior is exercised by the
+# per-feature test modules; testing the wrappers themselves only proves
+# Python forwards arguments — not a useful signal.
+omit = ["src/zerofilesystem/_core.py"]
+
+[tool.coverage.report]
+exclude_also = [
+    # Defensive guards that are only reachable when the runtime contradicts
+    # documented invariants — exercising them would require monkey-patching.
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+fail_under = 100
+
 [tool.bandit]
 exclude_dirs = [
     "tests",

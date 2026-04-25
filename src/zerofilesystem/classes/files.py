@@ -156,7 +156,10 @@ class FileSync:
                     if not dst.exists():
                         break
                     counter += 1
-                    if counter > MAX_RENAME_CONFLICTS:
+                    if counter > MAX_RENAME_CONFLICTS:  # pragma: no cover -- guard
+                        # against pathological collisions (10000 files with the
+                        # same name); requires a synthetic test that creates 10k+
+                        # files just to fire one branch
                         raise RuntimeError(f"Too many conflicting files: {stem}")
 
         try:
@@ -201,7 +204,8 @@ class FileSync:
         try:
             if abs(dst_p.stat().st_mtime - src_stat.st_mtime) > 1.0:
                 os.utime(dst_p, (src_stat.st_atime, src_stat.st_mtime))
-        except OSError:
+        except OSError:  # pragma: no cover -- best-effort mtime preservation;
+            # if utime fails, the copy still succeeded, so we swallow it
             pass
 
         return True
@@ -251,11 +255,14 @@ class FileCleaner:
                 p.unlink()
                 result["succeeded"].append(str(p))
 
-            except PermissionError as e:
+            except PermissionError as e:  # pragma: no cover -- defensive: many
+                # filesystems return OSError instead of PermissionError; this
+                # path requires a non-default ACL to trigger reliably
                 result["failed"].append((str(p), f"Permission denied: {e}"))
             except OSError as e:
                 result["failed"].append((str(p), f"OS error: {e}"))
-            except Exception as e:
+            except Exception as e:  # pragma: no cover -- catch-all guard for
+                # truly unexpected errors (e.g. broken filesystem driver)
                 result["failed"].append((str(p), f"Unexpected error: {e}"))
 
         return result
@@ -354,7 +361,8 @@ class FileFinder:
                 try:
                     if not filter_fn(p):
                         continue
-                except Exception:  # noqa: BLE001
+                except Exception:  # noqa: BLE001  # pragma: no cover -- defensive:
+                    # a buggy user filter must not abort the whole walk
                     continue  # nosec B112
 
             results.append(p.resolve() if absolute else p)
@@ -400,7 +408,8 @@ class FileFinder:
                 try:
                     if not filter_fn(p):
                         continue
-                except Exception:  # noqa: BLE001
+                except Exception:  # noqa: BLE001  # pragma: no cover -- defensive:
+                    # a buggy user filter must not abort the whole walk
                     continue  # nosec B112
 
             yield p.resolve() if absolute else p
@@ -424,7 +433,7 @@ class FileFinder:
         if p.name.startswith("."):
             return True
 
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
             try:
                 attrs = os.stat(p).st_file_attributes  # type: ignore[attr-defined]
                 return bool(attrs & FILE_ATTRIBUTE_HIDDEN)

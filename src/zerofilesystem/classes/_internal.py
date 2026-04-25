@@ -93,7 +93,7 @@ def is_hidden(path: Path) -> bool:
     if path.name.startswith("."):
         return True
 
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
         try:
             attrs = os.stat(path).st_file_attributes  # type: ignore[attr-defined]
             return bool(attrs & FILE_ATTRIBUTE_HIDDEN)

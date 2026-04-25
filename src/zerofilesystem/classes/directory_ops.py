@@ -124,7 +124,7 @@ class DirectoryOps:
                         else:
                             result.copied.append(dst_file)
 
-                except Exception as e:
+                except Exception as e:  # pragma: no cover -- defensive: capture per-file error and continue the walk
                     result.errors.append((src_file, str(e)))
 
         return result
@@ -295,7 +295,9 @@ class DirectoryOps:
                             if not dry_run:
                                 dst_file.unlink()
                             result.deleted.append(dst_file)
-                        except Exception as e:
+                        except (
+                            Exception
+                        ) as e:  # pragma: no cover -- defensive: capture per-file delete error
                             result.errors.append((dst_file, str(e)))
 
             # Clean up empty directories

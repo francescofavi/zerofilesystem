@@ -71,13 +71,14 @@ class FilePermissions:
 
                 owner = pwd.getpwuid(st.st_uid).pw_name
                 group = grp.getgrgid(st.st_gid).gr_name
-            except (KeyError, ImportError):
+            except (KeyError, ImportError):  # pragma: no cover -- defensive against
+                # uid/gid not present in passwd db (containers) or stripped pwd module
                 owner = str(st.st_uid)
                 group = str(st.st_gid)
 
         # Check if hidden
         is_hidden = p.name.startswith(".")
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
             try:
                 attrs = st.st_file_attributes  # type: ignore[attr-defined]
                 is_hidden = bool(attrs & stat.FILE_ATTRIBUTE_HIDDEN)  # type: ignore[attr-defined]
@@ -122,7 +123,7 @@ class FilePermissions:
         """
         p = Path(path)
 
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
             import ctypes
 
             attrs = ctypes.windll.kernel32.GetFileAttributesW(str(p))  # type: ignore[attr-defined]
@@ -160,7 +161,7 @@ class FilePermissions:
         """
         p = Path(path)
 
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
             import ctypes
 
             attrs = ctypes.windll.kernel32.GetFileAttributesW(str(p))  # type: ignore[attr-defined]
@@ -189,7 +190,7 @@ class FilePermissions:
         Note:
             On Windows, executability is determined by file extension.
         """
-        if IS_WINDOWS:
+        if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
             return  # No-op on Windows
 
         p = Path(path)
