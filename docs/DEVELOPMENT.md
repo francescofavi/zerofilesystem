@@ -29,7 +29,7 @@ uv sync
 
 ## 3. Running tests
 
-Full suite (currently 207 tests across 9 modules):
+Full suite (over 500 tests across every public module, pinned at 100% coverage):
 
 ```bash
 uv run pytest
@@ -151,7 +151,7 @@ The project uses **[release-please](https://github.com/googleapis/release-please
 ```
 zerofilesystem/
 ├── src/zerofilesystem/        # Library source
-├── tests/                     # 207 pytest tests
+├── tests/                     # pytest suite, 100% coverage
 ├── examples/                  # 10 runnable scripts
 ├── docs/                      # Public docs (this directory)
 ├── .internal_docs/            # Maintainer-only docs (gitignored exception, not shipped to PyPI)

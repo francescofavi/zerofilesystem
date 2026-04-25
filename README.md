@@ -142,7 +142,7 @@ uv sync
 uv run pytest
 ```
 
-The suite collects 207 tests across 9 modules, covering archives, finder, watcher, file locks, transactions, JSON, path utils, and basic I/O.
+The suite collects over 500 tests across every public module — archives, finder, watcher, file locks, transactions, JSON, path utils, basic I/O, directory ops, integrity, secure ops, permissions — and is pinned at 100% coverage in `pyproject.toml`.
 
 ## Running examples
 
