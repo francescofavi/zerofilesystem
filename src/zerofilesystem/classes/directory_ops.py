@@ -169,7 +169,9 @@ class DirectoryOps:
             rel_root = root_path.relative_to(src_p)
             dst_root = dst_p / rel_root
 
-            dst_root.mkdir(exist_ok=True)
+            # parents=True is required: topdown=False visits deepest paths first,
+            # so dst_root may sit several levels below the still-uncreated dst_p
+            dst_root.mkdir(parents=True, exist_ok=True)
 
             # Move files
             for f in files:
