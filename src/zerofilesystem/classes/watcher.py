@@ -15,11 +15,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum, auto
 from pathlib import Path
+from typing import Self
 
 from zerofilesystem._platform import Pathish
 from zerofilesystem.classes._internal import is_hidden as _is_hidden
 from zerofilesystem.classes._internal import parse_datetime as _parse_datetime
 from zerofilesystem.classes._internal import parse_size as _parse_size
+
+DEBOUNCE_MAX_CHECK_INTERVAL_SEC: float = 0.1
 
 
 class EventType(Enum):
@@ -736,7 +739,7 @@ class Watcher:
 
     def _debounce_loop(self) -> None:
         """Background loop to emit debounced MODIFIED events."""
-        check_interval = min(self._debounce_sec / 4, 0.1)
+        check_interval = min(self._debounce_sec / 4, DEBOUNCE_MAX_CHECK_INTERVAL_SEC)
 
         while self._running:
             now = time.time()
@@ -756,7 +759,7 @@ class Watcher:
 
     # Context Manager
 
-    def __enter__(self) -> Watcher:
+    def __enter__(self) -> Self:
         self.start()
         return self
 
@@ -764,7 +767,7 @@ class Watcher:
         self.stop()
 
 
-# LEGACY BACKWARD-COMPATIBLE API (from former file_watcher module)
+# Legacy backward-compatible API (from former file_watcher module)
 
 # Alias for legacy code that imported WatchEventType
 WatchEventType = EventType
@@ -959,7 +962,7 @@ class FileWatcher:
     def is_running(self) -> bool:
         return self._running
 
-    def __enter__(self) -> FileWatcher:
+    def __enter__(self) -> Self:
         self.start()
         return self
 

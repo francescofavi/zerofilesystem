@@ -6,6 +6,7 @@ import contextlib
 import os
 import time
 from pathlib import Path
+from typing import Self
 
 from zerofilesystem._platform import IS_WINDOWS, Pathish
 
@@ -57,7 +58,7 @@ class FileLock:
         self.fd: int | None = None
         self._locked = False
 
-    def __enter__(self) -> FileLock:
+    def __enter__(self) -> Self:
         self.acquire()
         return self
 

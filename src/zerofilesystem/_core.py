@@ -29,6 +29,7 @@ from zerofilesystem.classes import (
     PathUtils,
     SecureOps,
 )
+from zerofilesystem.classes._internal import HASH_CHUNK_SIZE
 from zerofilesystem.classes.directory_ops import SyncResult
 from zerofilesystem.classes.file_permissions import FileMetadata
 from zerofilesystem.classes.integrity_checker import ManifestEntry, VerificationResult
@@ -185,7 +186,7 @@ class ZeroFS:
     def file_hash(
         path: Pathish,
         algo: Literal["md5", "sha1", "sha256", "sha512"] = "sha256",
-        chunk: int = 1024 * 1024,
+        chunk: int = HASH_CHUNK_SIZE,
         progress_callback: Callable[[int, int], None] | None = None,
     ) -> str:
         return FileHasher.file_hash(
@@ -548,7 +549,7 @@ class ZeroFS:
     def list_archive(archive: Pathish) -> list[str]:
         return ArchiveHandler.list_archive(archive)
 
-    # LOCKING & TRANSACTIONS (return class instances)
+    # Locking and transactions (return class instances)
 
     @staticmethod
     def file_lock(lock_path: Pathish, timeout: float | None = None) -> FileLock:

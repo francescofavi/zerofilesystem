@@ -9,6 +9,7 @@ from collections.abc import Generator
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Self
 
 from zerofilesystem._platform import Pathish
 from zerofilesystem.classes.exceptions import TransactionError
@@ -290,7 +291,7 @@ class FileTransaction:
                 shutil.rmtree(self._tx_temp_dir)
             self._tx_temp_dir = None
 
-    def __enter__(self) -> FileTransaction:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
