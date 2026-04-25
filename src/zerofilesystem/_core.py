@@ -1,4 +1,4 @@
-"""ZeroFS - Cross-platform file system utilities facade class."""
+"""ZeroFS — POSIX file system utilities facade class."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import IO, Any, Literal
 
-from zerofilesystem._platform import IS_LINUX, IS_MACOS, IS_UNIX, IS_WINDOWS, Pathish
+from zerofilesystem._platform import IS_LINUX, IS_MACOS, Pathish
 from zerofilesystem.classes import (
     ArchiveHandler,
     DirectoryOps,
@@ -36,21 +36,21 @@ from zerofilesystem.classes.integrity_checker import ManifestEntry, Verification
 
 
 class ZeroFS:
-    """Cross-platform file system utilities - facade class.
+    """POSIX file system utilities — facade class.
 
-    Provides a unified interface to all zerofilesystem functionality.
+    Provides a unified interface to every zerofilesystem capability so that
+    users who prefer object-style access (``ZeroFS().read_text(...)``) get
+    the same surface as the top-level helpers.
 
     Example:
         zo = ZeroFS()
-        zfs.write_text("file.txt", "Hello World")
-        content = zfs.read_text("file.txt")
+        zo.write_text("file.txt", "Hello World")
+        content = zo.read_text("file.txt")
     """
 
     # Platform constants
-    IS_WINDOWS = IS_WINDOWS
     IS_MACOS = IS_MACOS
     IS_LINUX = IS_LINUX
-    IS_UNIX = IS_UNIX
 
     # Basic I/O
 
@@ -277,10 +277,6 @@ class ZeroFS:
     @staticmethod
     def set_readonly(path: Pathish, readonly: bool = True) -> None:
         FilePermissions.set_readonly(path, readonly=readonly)
-
-    @staticmethod
-    def set_hidden(path: Pathish, hidden: bool = True) -> None:
-        FilePermissions.set_hidden(path, hidden=hidden)
 
     @staticmethod
     def set_executable(path: Pathish, executable: bool = True) -> None:

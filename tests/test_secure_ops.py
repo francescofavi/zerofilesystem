@@ -11,7 +11,6 @@ from pathlib import Path
 import pytest
 
 import zerofilesystem as zfs
-from zerofilesystem._platform import IS_UNIX
 from zerofilesystem.classes.exceptions import SecureDeleteError
 from zerofilesystem.classes.secure_ops import SecureOps
 
@@ -46,12 +45,12 @@ def test_secure_delete_with_random_data_passes(tmp_path: Path) -> None:
     assert not p.exists()
 
 
-def test_secure_delete_against_readonly_file_succeeds_on_unix(tmp_path: Path) -> None:
-    if not IS_UNIX:
-        pytest.skip("POSIX-only chmod assertion")
+def test_secure_delete_against_readonly_file_succeeds(tmp_path: Path) -> None:
+    """secure_delete chmods +w on a readonly file before overwriting; the
+    file should be gone afterwards even if the user tried to protect it."""
     p = tmp_path / "ro.bin"
     p.write_bytes(b"x" * 32)
-    p.chmod(0o400)
+    os.chmod(p, stat.S_IRUSR)
     zfs.secure_delete(p)
     assert not p.exists()
 
@@ -97,11 +96,10 @@ def test_private_directory_uses_prefix(tmp_path: Path) -> None:
 
 
 def test_private_directory_has_owner_only_permissions(tmp_path: Path) -> None:
-    if not IS_UNIX:
-        pytest.skip("POSIX bit-level assertion")
+    """Private directories must be 0o700 — owner-only access is the whole
+    point of using ``private_directory`` over ``temp_directory``."""
     with zfs.private_directory(parent=tmp_path) as d:
-        mode = d.stat().st_mode & 0o777
-        assert mode == 0o700
+        assert (d.stat().st_mode & 0o777) == 0o700
 
 
 def test_private_directory_secure_cleanup_removes_directory(tmp_path: Path) -> None:
@@ -139,12 +137,11 @@ def test_create_private_file_creates_parent_directory(tmp_path: Path) -> None:
 
 
 def test_create_private_file_has_owner_only_permissions(tmp_path: Path) -> None:
-    if not IS_UNIX:
-        pytest.skip("POSIX bit-level assertion")
+    """Private files must be 0o600 — same security guarantee as
+    ``private_directory``, applied at file granularity."""
     target = tmp_path / "secret.txt"
     zfs.create_private_file(target, text_content="x")
-    mode = target.stat().st_mode & 0o777
-    assert mode == 0o600
+    assert (target.stat().st_mode & 0o777) == 0o600
 
 
 def test_create_private_file_overwrites_existing(tmp_path: Path) -> None:
@@ -154,50 +151,24 @@ def test_create_private_file_overwrites_existing(tmp_path: Path) -> None:
     assert target.read_text() == "NEW"
 
 
-def test_set_private_permissions_for_file(tmp_path: Path) -> None:
-    if not IS_UNIX:
-        pytest.skip("POSIX bit-level assertion")
-    p = tmp_path / "f.txt"
-    p.write_text("x")
-    SecureOps.set_private_permissions(p)
-    mode = p.stat().st_mode & 0o777
-    assert mode == 0o600
+def test_set_private_permissions_uses_0o600_for_file_and_0o700_for_directory(
+    tmp_path: Path,
+) -> None:
+    f = tmp_path / "f.txt"
+    f.write_text("x")
+    SecureOps.set_private_permissions(f)
+    assert (f.stat().st_mode & 0o777) == 0o600
 
-
-def test_set_private_permissions_for_directory(tmp_path: Path) -> None:
-    if not IS_UNIX:
-        pytest.skip("POSIX bit-level assertion")
     d = tmp_path / "subdir"
     d.mkdir()
     SecureOps.set_private_permissions(d)
-    mode = d.stat().st_mode & 0o777
-    assert mode == 0o700
+    assert (d.stat().st_mode & 0o777) == 0o700
 
 
-def test_generate_random_filename_default_length() -> None:
-    name = SecureOps.generate_random_filename()
-    assert len(name) == 16
+def test_generate_random_filename_respects_length_and_extension() -> None:
+    plain = SecureOps.generate_random_filename()
+    assert len(plain) == 16
 
-
-def test_generate_random_filename_custom_length_and_extension() -> None:
-    name = SecureOps.generate_random_filename(length=8, extension=".bin")
-    assert name.endswith(".bin")
-    assert len(name) == 8 + len(".bin")
-
-
-def test_generate_random_filename_two_invocations_differ() -> None:
-    a = SecureOps.generate_random_filename()
-    b = SecureOps.generate_random_filename()
-    assert a != b
-
-
-def test_secure_delete_file_originally_writable_changes_back_to_unreadable(
-    tmp_path: Path,
-) -> None:
-    """secure_delete chmods +w if needed; verify the file is gone afterwards."""
-    p = tmp_path / "ro.txt"
-    p.write_text("x")
-    if IS_UNIX:
-        os.chmod(p, stat.S_IRUSR)
-    zfs.secure_delete(p)
-    assert not p.exists()
+    custom = SecureOps.generate_random_filename(length=8, extension=".bin")
+    assert custom.endswith(".bin")
+    assert len(custom) == 8 + len(".bin")

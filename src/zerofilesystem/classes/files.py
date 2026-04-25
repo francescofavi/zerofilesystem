@@ -13,12 +13,8 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Literal
 
-from zerofilesystem._platform import IS_WINDOWS, Pathish
-from zerofilesystem.classes._internal import (
-    FILE_ATTRIBUTE_HIDDEN,
-    HASH_CHUNK_SIZE,
-    MAX_RENAME_CONFLICTS,
-)
+from zerofilesystem._platform import Pathish
+from zerofilesystem.classes._internal import HASH_CHUNK_SIZE, MAX_RENAME_CONFLICTS
 
 # FileMeta — File and directory metadata
 
@@ -407,28 +403,5 @@ class FileFinder:
 
     @staticmethod
     def is_hidden(path: Pathish) -> bool:
-        """Check if file/directory is hidden.
-
-        Args:
-            path: File or directory path
-
-        Returns:
-            True if hidden
-
-        Platform-specific:
-            - Unix/macOS: Starts with .
-            - Windows: Has FILE_ATTRIBUTE_HIDDEN flag
-        """
-        p = Path(path)
-
-        if p.name.startswith("."):
-            return True
-
-        if IS_WINDOWS:
-            try:
-                attrs = os.stat(p).st_file_attributes  # type: ignore[attr-defined]
-                return bool(attrs & FILE_ATTRIBUTE_HIDDEN)
-            except (AttributeError, OSError):
-                return False
-
-        return False
+        """Check if file or directory is hidden — POSIX dotfile convention."""
+        return Path(path).name.startswith(".")

@@ -1,6 +1,7 @@
 """Tests for the Watcher class with fluent API."""
 
 import time
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from zerofilesystem import EventType, Watcher, WatchEvent
@@ -366,3 +367,50 @@ class TestWatcherChaining:
         watcher.stop()
 
         assert len(events) >= 1
+
+
+class TestWatcherBuilderSetters:
+    """Verify every fluent setter on Watcher returns self and runs cleanly.
+
+    The dedicated tests above exercise the runtime semantics; this parametric
+    test is the regression guard for the fluent API contract itself.
+    """
+
+    def test_setters_with_argument_return_self(self, tmp_path: Path) -> None:
+        w = Watcher(tmp_path)
+        chain = (
+            w.pattern("*.py")
+            .patterns("*.txt", "*.md")
+            .exclude("__pycache__")
+            .recursive(True)
+            .non_recursive()
+            .max_depth(3)
+            .poll_interval(0.5)
+            .debounce(1.0)
+            .debounce_ms(500)
+            .size_min("1KB")
+            .size_max("10MB")
+            .size_between("1B", "1GB")
+            .modified_after(datetime(2020, 1, 1))
+            .modified_before(datetime(2030, 1, 1))
+            .modified_last_days(30)
+            .modified_last_hours(24)
+            .created_after(timedelta(days=365))
+            .created_before(datetime(2030, 1, 1))
+        )
+        assert chain is w
+
+    def test_zero_arg_setters_return_self(self, tmp_path: Path) -> None:
+        w = Watcher(tmp_path)
+        chain = (
+            w.hidden()
+            .not_hidden()
+            .empty()
+            .not_empty()
+            .follow_symlinks(True)
+            .no_symlinks()
+            .files_only()
+            .dirs_only()
+            .files_and_dirs()
+        )
+        assert chain is w

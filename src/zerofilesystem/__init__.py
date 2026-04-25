@@ -1,4 +1,4 @@
-"""zerofilesystem - Cross-platform file system utilities.
+"""zerofilesystem — POSIX file system utilities for Python (Linux + macOS).
 
 Usage:
     import zerofilesystem as zfs
@@ -14,7 +14,7 @@ Usage:
     # Find files
     py_files = zfs.find_files(".", pattern="**/*.py")
 
-    # File locking
+    # File locking (POSIX advisory lock via fcntl)
     with zfs.FileLock("/tmp/my.lock"):
         # Critical section
         pass
@@ -33,7 +33,7 @@ License: MIT
 """
 
 from zerofilesystem._core import ZeroFS
-from zerofilesystem._platform import IS_LINUX, IS_MACOS, IS_UNIX, IS_WINDOWS, Pathish
+from zerofilesystem._platform import IS_LINUX, IS_MACOS, Pathish
 from zerofilesystem.classes import (
     ArchiveError,
     ArchiveHandler,
@@ -137,7 +137,6 @@ validate_path = PathUtils.validate_path
 
 get_metadata = FilePermissions.get_metadata
 set_readonly = FilePermissions.set_readonly
-set_hidden = FilePermissions.set_hidden
 set_executable = FilePermissions.set_executable
 set_permissions = FilePermissions.set_permissions
 copy_permissions = FilePermissions.copy_permissions
@@ -188,10 +187,8 @@ __all__ = [
     # Facade class
     "ZeroFS",
     # Platform constants
-    "IS_WINDOWS",
     "IS_MACOS",
     "IS_LINUX",
-    "IS_UNIX",
     "Pathish",
     # Classes (for advanced usage)
     "Finder",
@@ -255,7 +252,6 @@ __all__ = [
     # Permissions
     "get_metadata",
     "set_readonly",
-    "set_hidden",
     "set_executable",
     "set_permissions",
     "copy_permissions",

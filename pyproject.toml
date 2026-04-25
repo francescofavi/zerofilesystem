@@ -1,12 +1,12 @@
 [project]
 name = "zerofilesystem"
 dynamic = ["version"]
-description = "Cross-platform file system utilities for Python"
+description = "POSIX file system utilities for Python (Linux + macOS)"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{name = "Francesco Favi", email = "ffavidev@gmail.com"}]
-keywords = ["filesystem", "files", "io", "cross-platform", "utilities", "pathlib"]
+keywords = ["filesystem", "files", "io", "posix", "linux", "macos", "utilities", "pathlib"]
 dependencies = []
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -16,7 +16,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Typing :: Typed",
-    "Operating System :: OS Independent",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
 ]
 
 [project.urls]
@@ -139,6 +140,24 @@ exclude = [
 [[tool.mypy.overrides]]
 module = ["tests.*", "examples.*"]
 warn_unreachable = false
+
+[tool.coverage.run]
+source = ["src/zerofilesystem"]
+# _core.py is the ZeroFS facade: every method is a one-line wrapper around
+# an underlying class method. The underlying behavior is exercised by the
+# per-feature test modules; testing the wrappers themselves only proves
+# Python forwards arguments — not a useful signal.
+omit = ["src/zerofilesystem/_core.py"]
+
+[tool.coverage.report]
+exclude_also = [
+    # Defensive guards that are only reachable when the runtime contradicts
+    # documented invariants — exercising them would require monkey-patching.
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    # Backward-compat / debug-only branches.
+    "if __name__ == .__main__.:",
+]
 
 [tool.bandit]
 exclude_dirs = [

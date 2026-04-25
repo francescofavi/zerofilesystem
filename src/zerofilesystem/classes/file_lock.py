@@ -1,31 +1,27 @@
-"""Cross-platform file locking."""
+"""POSIX file locking using fcntl."""
 
 from __future__ import annotations
 
 import contextlib
+import fcntl
 import os
 import time
 from pathlib import Path
 from typing import Self
 
-from zerofilesystem._platform import IS_WINDOWS, Pathish
+from zerofilesystem._platform import Pathish
 
 LOCK_POLL_INTERVAL: float = 0.05
 
 
 class FileLock:
-    """
-    Cross-platform file lock using fcntl (Unix/macOS) or msvcrt (Windows).
+    """POSIX advisory file lock backed by ``fcntl.flock`` (Linux + macOS).
 
     Features:
-    - Auto-cleanup on process crash (lock is released)
+    - Auto-cleanup on process crash (the kernel releases the lock)
     - Optional timeout
     - Blocking or non-blocking acquisition
     - Works across processes (not just threads)
-
-    Platform-specific:
-        - Unix/macOS: Uses fcntl.flock()
-        - Windows: Uses msvcrt.locking()
 
     Usage:
         with FileLock("/tmp/my.lock", timeout=10):
@@ -46,8 +42,7 @@ class FileLock:
     """
 
     def __init__(self, lock_path: Pathish, timeout: float | None = None):
-        """
-        Initialize file lock.
+        """Initialize file lock.
 
         Args:
             lock_path: Path to lock file (will be created)
@@ -66,8 +61,7 @@ class FileLock:
         self.release()
 
     def acquire(self) -> None:
-        """
-        Acquire lock.
+        """Acquire the lock.
 
         Raises:
             TimeoutError: If timeout expires before acquiring lock
@@ -79,11 +73,22 @@ class FileLock:
         self.fd = os.open(self.lock_path, os.O_CREAT | os.O_RDWR, 0o644)
 
         try:
-            if IS_WINDOWS:
-                self._acquire_windows()
+            if self.timeout is None:
+                # Blocking lock (wait forever)
+                fcntl.flock(self.fd, fcntl.LOCK_EX)
             else:
-                self._acquire_unix()
-
+                # Non-blocking poll with timeout
+                start = time.time()
+                while True:
+                    try:
+                        fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                        break
+                    except BlockingIOError as e:
+                        if time.time() - start > self.timeout:
+                            raise TimeoutError(
+                                f"Could not acquire lock within {self.timeout}s: {self.lock_path}"
+                            ) from e
+                        time.sleep(LOCK_POLL_INTERVAL)
             self._locked = True
 
         except Exception:
@@ -94,71 +99,13 @@ class FileLock:
                 self.fd = None
             raise
 
-    def _acquire_unix(self) -> None:
-        """Acquire lock on Unix/macOS using fcntl."""
-        import fcntl
-
-        assert self.fd is not None  # Set in acquire() before calling this
-
-        if self.timeout is None:
-            # Blocking lock (wait forever)
-            fcntl.flock(self.fd, fcntl.LOCK_EX)
-        else:
-            # Non-blocking with timeout
-            start = time.time()
-            while True:
-                try:
-                    fcntl.flock(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                    break
-                except BlockingIOError as e:
-                    if time.time() - start > self.timeout:
-                        raise TimeoutError(
-                            f"Could not acquire lock within {self.timeout}s: {self.lock_path}"
-                        ) from e
-                    time.sleep(LOCK_POLL_INTERVAL)
-
-    def _acquire_windows(self) -> None:
-        """Acquire lock on Windows using msvcrt."""
-        import msvcrt
-
-        assert self.fd is not None  # Set in acquire() before calling this
-
-        if self.timeout is None:
-            # Blocking lock
-            while True:
-                try:
-                    msvcrt.locking(self.fd, msvcrt.LK_NBLCK, 1)  # type: ignore[attr-defined]
-                    break
-                except OSError:
-                    time.sleep(LOCK_POLL_INTERVAL)
-        else:
-            # Non-blocking with timeout
-            start = time.time()
-            while True:
-                try:
-                    msvcrt.locking(self.fd, msvcrt.LK_NBLCK, 1)  # type: ignore[attr-defined]
-                    break
-                except OSError as e:
-                    if time.time() - start > self.timeout:
-                        raise TimeoutError(
-                            f"Could not acquire lock within {self.timeout}s: {self.lock_path}"
-                        ) from e
-                    time.sleep(LOCK_POLL_INTERVAL)
-
     def release(self) -> None:
-        """Release lock."""
+        """Release the lock."""
         if not self._locked or self.fd is None:
             return
 
         try:
-            if IS_WINDOWS:
-                import msvcrt
-
-                msvcrt.locking(self.fd, msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]
-            else:
-                import fcntl
-
-                fcntl.flock(self.fd, fcntl.LOCK_UN)
+            fcntl.flock(self.fd, fcntl.LOCK_UN)
         finally:
             with contextlib.suppress(Exception):
                 os.close(self.fd)
