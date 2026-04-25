@@ -134,6 +134,12 @@ exclude = [
     "build",
 ]
 
+# Mutable-state narrowing on `is_running` properties trips warn_unreachable in
+# tests that assert state across start()/stop() — relax for tests + examples.
+[[tool.mypy.overrides]]
+module = ["tests.*", "examples.*"]
+warn_unreachable = false
+
 [tool.bandit]
 exclude_dirs = [
     "tests",

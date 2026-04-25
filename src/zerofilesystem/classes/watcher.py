@@ -125,7 +125,7 @@ class Watcher:
         self._debounce_thread: threading.Thread | None = None
 
         # Runtime state
-        self._running = False
+        self._running: bool = False
         self._thread: threading.Thread | None = None
         self._lock = threading.Lock()
         self._file_states: dict[Path, float] = {}
