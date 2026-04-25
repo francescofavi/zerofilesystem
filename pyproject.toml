@@ -107,6 +107,8 @@ ignore = [
 
 [tool.mypy]
 python_version = "3.12"
+files = ["src/zerofilesystem"]
+mypy_path = "src"
 strict_optional = true
 warn_return_any = true
 warn_unused_configs = true

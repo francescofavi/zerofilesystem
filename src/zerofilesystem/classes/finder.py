@@ -87,9 +87,7 @@ class Finder:
         # Custom filters
         self._custom_filters: list[Callable[[Path], bool]] = []
 
-    # =========================================================================
-    # PATTERN METHODS
-    # =========================================================================
+    # Pattern Methods
 
     def patterns(self, *patterns: str) -> Finder:
         """
@@ -130,10 +128,7 @@ class Finder:
         self._exclude_patterns.extend(patterns)
         return self
 
-    # =========================================================================
-    # RECURSION AND DEPTH
-    # =========================================================================
-
+    # Recursion and depth
     def recursive(self, recursive: bool = True) -> Finder:
         """
         Enable/disable recursive search into subdirectories.
@@ -164,9 +159,7 @@ class Finder:
         self._max_depth = depth
         return self
 
-    # =========================================================================
-    # SIZE FILTERS
-    # =========================================================================
+    # Size Filters
 
     def size_min(self, size: int | str) -> Finder:
         """
@@ -213,9 +206,7 @@ class Finder:
         """
         return self.size_min(min_size).size_max(max_size)
 
-    # =========================================================================
-    # DATE FILTERS
-    # =========================================================================
+    # Date Filters
 
     def modified_after(self, dt: datetime | str | timedelta) -> Finder:
         """
@@ -279,9 +270,7 @@ class Finder:
         self._accessed_before = _parse_datetime(dt)
         return self
 
-    # =========================================================================
-    # ATTRIBUTE FILTERS
-    # =========================================================================
+    # Attribute Filters
 
     def hidden(self) -> Finder:
         """Include only hidden files."""
@@ -327,9 +316,7 @@ class Finder:
         self._must_be_executable = True
         return self
 
-    # =========================================================================
-    # TYPE FILTERS
-    # =========================================================================
+    # Type Filters
 
     def files_only(self) -> Finder:
         """Include only files (default)."""
@@ -349,9 +336,7 @@ class Finder:
         self._dirs_only = False
         return self
 
-    # =========================================================================
-    # OUTPUT OPTIONS
-    # =========================================================================
+    # Output Options
 
     def absolute(self, absolute: bool = True) -> Finder:
         """Return absolute paths (default)."""
@@ -379,9 +364,7 @@ class Finder:
         """Return first N results. Alias for limit()."""
         return self.limit(n)
 
-    # =========================================================================
-    # CUSTOM FILTERS
-    # =========================================================================
+    # Custom Filters
 
     def filter(self, fn: Callable[[Path], bool]) -> Finder:
         """
@@ -404,9 +387,7 @@ class Finder:
         """Alias for filter()."""
         return self.filter(fn)
 
-    # =========================================================================
-    # EXECUTION
-    # =========================================================================
+    # Execution
 
     def find(self) -> list[Path]:
         """
@@ -574,9 +555,7 @@ class Finder:
         except (OSError, PermissionError):
             return False
 
-    # =========================================================================
-    # UTILITY METHODS
-    # =========================================================================
+    # Utility Methods
 
     def count(self) -> int:
         """Count matching files without building full list."""

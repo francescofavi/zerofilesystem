@@ -18,9 +18,7 @@ from typing import IO, Any
 
 from zerofilesystem._platform import IS_WINDOWS, Pathish
 
-# =============================================================================
-# ATOMIC WRITE HELPERS
-# =============================================================================
+# Atomic Write Helpers
 
 
 def _atomic_tmp_path(path: Path) -> Path:
@@ -50,9 +48,7 @@ def _atomic_write_helper(
         raise
 
 
-# =============================================================================
 # FileIO — Basic text/bytes I/O
-# =============================================================================
 
 
 class FileIO:
@@ -126,9 +122,7 @@ class FileIO:
         return _atomic_write_helper(p, _write)
 
 
-# =============================================================================
 # JsonHandler — JSON serialization/deserialization
-# =============================================================================
 
 
 class JsonHandler:
@@ -168,9 +162,7 @@ class JsonHandler:
         )
 
 
-# =============================================================================
 # GzipHandler — Compression/decompression
-# =============================================================================
 
 
 class GzipHandler:
@@ -264,9 +256,7 @@ class GzipHandler:
             raise
 
 
-# =============================================================================
 # FileUtils — Filename sanitization and atomic write context manager
-# =============================================================================
 
 
 class FileUtils:

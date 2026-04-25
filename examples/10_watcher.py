@@ -24,9 +24,7 @@ def main() -> None:
 
         print(f"Watching directory: {tmp_path}\n")
 
-        # =========================================================================
-        # BASIC WATCHING
-        # =========================================================================
+        # Basic Watching
 
         print("=== Basic File Watching ===\n")
 
@@ -69,9 +67,7 @@ def main() -> None:
         watcher.stop()
         print(f"\nTotal events captured: {len(events)}")
 
-        # =========================================================================
-        # PATTERN FILTERING
-        # =========================================================================
+        # Pattern Filtering
 
         print("\n=== Pattern Filtering ===\n")
 
@@ -98,9 +94,7 @@ def main() -> None:
         for e in py_events:
             print(f"  - {e.path.name}")
 
-        # =========================================================================
-        # EXCLUSION PATTERNS
-        # =========================================================================
+        # Exclusion Patterns
 
         print("\n=== Exclusion Patterns ===\n")
 
@@ -127,9 +121,7 @@ def main() -> None:
         for e in filtered_events:
             print(f"  - {e.path.name}")
 
-        # =========================================================================
-        # DEBOUNCING
-        # =========================================================================
+        # Debouncing
 
         print("\n=== Debouncing MODIFIED Events ===\n")
 
@@ -162,9 +154,7 @@ def main() -> None:
         print(f"\nModified events received: {len(debounced_events)}")
         print("(Should be 1 due to debouncing)")
 
-        # =========================================================================
-        # WITHOUT DEBOUNCING (COMPARISON)
-        # =========================================================================
+        # Without Debouncing (Comparison)
 
         print("\n=== Without Debouncing (Comparison) ===\n")
 
@@ -192,10 +182,7 @@ def main() -> None:
         print(f"\nModified events received: {len(no_debounce_events)}")
         print("(May be multiple events without debouncing)")
 
-        # =========================================================================
-        # SIZE AND ATTRIBUTE FILTERS
-        # =========================================================================
-
+        # Size and attribute filters
         print("\n=== Size and Attribute Filters ===\n")
 
         size_events: list[WatchEvent] = []
@@ -221,9 +208,7 @@ def main() -> None:
         for e in size_events:
             print(f"  - {e.path.name} ({e.path.stat().st_size} bytes)")
 
-        # =========================================================================
-        # ERROR HANDLING
-        # =========================================================================
+        # Error Handling
 
         print("\n=== Error Handling ===\n")
 
@@ -254,9 +239,7 @@ def main() -> None:
         if errors:
             print(f"  Error type: {type(errors[0][1]).__name__}")
 
-        # =========================================================================
-        # MULTIPLE CALLBACKS
-        # =========================================================================
+        # Multiple Callbacks
 
         print("\n=== Multiple Callbacks ===\n")
 
@@ -291,9 +274,7 @@ def main() -> None:
         print(f"Modified events: {modified}")
         print(f"Deleted events: {deleted}")
 
-        # =========================================================================
-        # POLL INTERVAL PRESETS
-        # =========================================================================
+        # Poll Interval Presets
 
         print("\n=== Poll Interval Configuration ===\n")
 
@@ -306,9 +287,7 @@ def main() -> None:
         custom_watcher = Watcher(tmp_path).poll_interval(2.5)
         print(f"poll_interval(2.5) interval: {custom_watcher._poll_interval_sec}s")
 
-        # =========================================================================
-        # MANUAL START/STOP
-        # =========================================================================
+        # Manual Start/Stop
 
         print("\n=== Manual Start/Stop ===\n")
 

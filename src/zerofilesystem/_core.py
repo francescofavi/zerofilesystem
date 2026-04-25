@@ -51,9 +51,7 @@ class ZeroFS:
     IS_LINUX = IS_LINUX
     IS_UNIX = IS_UNIX
 
-    # ==========================================================================
-    # BASIC I/O
-    # ==========================================================================
+    # Basic I/O
 
     @staticmethod
     def read_text(path: Pathish, encoding: str = "utf-8") -> str:
@@ -84,9 +82,7 @@ class ZeroFS:
     ) -> Path:
         return FileIO.write_bytes(path, data, create_dirs=create_dirs, atomic=atomic)
 
-    # ==========================================================================
     # JSON
-    # ==========================================================================
 
     @staticmethod
     def read_json(path: Pathish, encoding: str = "utf-8") -> Any:
@@ -106,9 +102,7 @@ class ZeroFS:
             path, obj, encoding=encoding, indent=indent, create_dirs=create_dirs, atomic=atomic
         )
 
-    # ==========================================================================
-    # GZIP
-    # ==========================================================================
+    # Gzip
 
     @staticmethod
     def gzip_compress(
@@ -127,9 +121,7 @@ class ZeroFS:
     ) -> Path:
         return GzipHandler.decompress(src_gz, dst, atomic=atomic)
 
-    # ==========================================================================
-    # DISCOVERY
-    # ==========================================================================
+    # Discovery
 
     @staticmethod
     def find_files(
@@ -156,9 +148,7 @@ class ZeroFS:
     def is_hidden(path: Pathish) -> bool:
         return FileFinder.is_hidden(path)
 
-    # ==========================================================================
-    # CLEANUP
-    # ==========================================================================
+    # Cleanup
 
     @staticmethod
     def delete_files(paths: Iterable[Pathish]) -> dict[str, list]:
@@ -168,9 +158,7 @@ class ZeroFS:
     def delete_empty_dirs(root: Pathish, remove_root: bool = False) -> list[Path]:
         return FileCleaner.delete_empty_dirs(root, remove_root=remove_root)
 
-    # ==========================================================================
-    # SYNC
-    # ==========================================================================
+    # Sync
 
     @staticmethod
     def move_if_absent(
@@ -191,9 +179,7 @@ class ZeroFS:
     ) -> bool:
         return FileSync.copy_if_newer(src, dst, create_dirs=create_dirs)
 
-    # ==========================================================================
-    # HASH
-    # ==========================================================================
+    # Hash
 
     @staticmethod
     def file_hash(
@@ -206,9 +192,7 @@ class ZeroFS:
             path, algo=algo, chunk=chunk, progress_callback=progress_callback
         )
 
-    # ==========================================================================
-    # META
-    # ==========================================================================
+    # Meta
 
     @staticmethod
     def ensure_dir(path: Pathish) -> Path:
@@ -226,9 +210,7 @@ class ZeroFS:
     def disk_usage(path: Pathish) -> tuple[int, int, int]:
         return FileMeta.disk_usage(path)
 
-    # ==========================================================================
-    # UTILS
-    # ==========================================================================
+    # Utils
 
     @staticmethod
     def safe_filename(name: str, replacement: str = "_") -> str:
@@ -244,9 +226,7 @@ class ZeroFS:
         with FileUtils.atomic_write(path, mode=mode, encoding=encoding) as f:
             yield f
 
-    # ==========================================================================
-    # PATH UTILS
-    # ==========================================================================
+    # Path Utils
 
     @staticmethod
     def normalize_path(path: Pathish) -> Path:
@@ -287,9 +267,7 @@ class ZeroFS:
             path, must_exist=must_exist, must_be_file=must_be_file, must_be_dir=must_be_dir
         )
 
-    # ==========================================================================
-    # PERMISSIONS
-    # ==========================================================================
+    # Permissions
 
     @staticmethod
     def get_metadata(path: Pathish) -> FileMetadata:
@@ -331,9 +309,7 @@ class ZeroFS:
     def string_to_mode(s: str) -> int:
         return FilePermissions.string_to_mode(s)
 
-    # ==========================================================================
-    # DIRECTORY OPS
-    # ==========================================================================
+    # Directory Ops
 
     @staticmethod
     def copy_tree(
@@ -408,9 +384,7 @@ class ZeroFS:
     ) -> SyncResult:
         return DirectoryOps.flatten(src, dst, separator=separator, on_conflict=on_conflict)
 
-    # ==========================================================================
-    # INTEGRITY
-    # ==========================================================================
+    # Integrity
 
     @staticmethod
     def directory_hash(
@@ -480,9 +454,7 @@ class ZeroFS:
     ) -> str:
         return IntegrityChecker.snapshot_hash(path, algorithm=algorithm)
 
-    # ==========================================================================
-    # SECURE
-    # ==========================================================================
+    # Secure
 
     @staticmethod
     def secure_delete(path: Pathish, passes: int = 3, random_data: bool = True) -> None:
@@ -516,9 +488,7 @@ class ZeroFS:
             path, content=content, text_content=text_content, encoding=encoding
         )
 
-    # ==========================================================================
-    # ARCHIVE
-    # ==========================================================================
+    # Archive
 
     @staticmethod
     def create_tar(
@@ -578,9 +548,7 @@ class ZeroFS:
     def list_archive(archive: Pathish) -> list[str]:
         return ArchiveHandler.list_archive(archive)
 
-    # ==========================================================================
     # LOCKING & TRANSACTIONS (return class instances)
-    # ==========================================================================
 
     @staticmethod
     def file_lock(lock_path: Pathish, timeout: float | None = None) -> FileLock:

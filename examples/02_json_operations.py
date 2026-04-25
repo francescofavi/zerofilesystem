@@ -18,9 +18,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
 
-        # =========================================================================
-        # BASIC JSON OPERATIONS
-        # =========================================================================
+        # Basic JSON operations
 
         print("=== Basic JSON Operations ===\n")
 
@@ -39,9 +37,7 @@ def main() -> None:
         loaded_config = zfs.read_json(config_file)
         print(f"Loaded config: {loaded_config}")
 
-        # =========================================================================
-        # COMPLEX NESTED STRUCTURES
-        # =========================================================================
+        # Complex Nested Structures
 
         print("\n=== Complex Nested Structures ===\n")
 
@@ -74,9 +70,7 @@ def main() -> None:
         print(f"\nFirst user: {loaded['users'][0]['name']}")
         print(f"Admin roles: {loaded['users'][0]['roles']}")
 
-        # =========================================================================
-        # JSON WITH UNICODE
-        # =========================================================================
+        # JSON with unicode
 
         print("\n=== JSON with Unicode ===\n")
 
@@ -95,9 +89,7 @@ def main() -> None:
         for lang, strings in loaded_translations.items():
             print(f"  {lang}: {strings['greeting']}")
 
-        # =========================================================================
-        # JSON ARRAYS
-        # =========================================================================
+        # JSON arrays
 
         print("\n=== JSON Arrays ===\n")
 
@@ -116,9 +108,7 @@ def main() -> None:
             status = "done" if task["done"] else "pending"
             print(f"  [{status}] {task['title']}")
 
-        # =========================================================================
-        # CUSTOM INDENTATION
-        # =========================================================================
+        # Custom Indentation
 
         print("\n=== Custom Indentation ===\n")
 
@@ -136,9 +126,7 @@ def main() -> None:
         print("\n4-space indent:")
         print(zfs.read_text(four_space_file))
 
-        # =========================================================================
-        # UPDATING JSON FILES
-        # =========================================================================
+        # Updating JSON files
 
         print("\n=== Updating JSON Files ===\n")
 

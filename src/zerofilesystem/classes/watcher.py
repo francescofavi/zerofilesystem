@@ -128,9 +128,7 @@ class Watcher:
         self._file_states: dict[Path, float] = {}
         self._dir_states: set[Path] = set()
 
-    # =========================================================================
-    # PATTERN METHODS
-    # =========================================================================
+    # Pattern Methods
 
     def patterns(self, *patterns: str) -> Watcher:
         """
@@ -170,10 +168,7 @@ class Watcher:
         self._exclude_patterns.extend(patterns)
         return self
 
-    # =========================================================================
-    # RECURSION AND DEPTH
-    # =========================================================================
-
+    # Recursion and depth
     def recursive(self, recursive: bool = True) -> Watcher:
         """Enable/disable recursive watching of subdirectories."""
         self._recursive = recursive
@@ -188,9 +183,7 @@ class Watcher:
         self._max_depth = depth
         return self
 
-    # =========================================================================
-    # POLL INTERVAL
-    # =========================================================================
+    # Poll Interval
 
     def poll_interval(self, seconds: float) -> Watcher:
         """
@@ -213,9 +206,7 @@ class Watcher:
         """Set slow polling (5 seconds)."""
         return self.poll_interval(5.0)
 
-    # =========================================================================
-    # DEBOUNCE
-    # =========================================================================
+    # Debounce
 
     def debounce(self, seconds: float) -> Watcher:
         """
@@ -246,9 +237,7 @@ class Watcher:
         """Debounce MODIFIED events (milliseconds)."""
         return self.debounce(milliseconds / 1000.0)
 
-    # =========================================================================
-    # SIZE FILTERS
-    # =========================================================================
+    # Size Filters
 
     def size_min(self, size: int | str) -> Watcher:
         """Watch only files >= minimum size."""
@@ -264,9 +253,7 @@ class Watcher:
         """Watch only files within size range."""
         return self.size_min(min_size).size_max(max_size)
 
-    # =========================================================================
-    # DATE FILTERS
-    # =========================================================================
+    # Date Filters
 
     def modified_after(self, dt: datetime | str | timedelta) -> Watcher:
         """Watch only files modified after date."""
@@ -296,9 +283,7 @@ class Watcher:
         self._created_before = _parse_datetime(dt)
         return self
 
-    # =========================================================================
-    # ATTRIBUTE FILTERS
-    # =========================================================================
+    # Attribute Filters
 
     def hidden(self) -> Watcher:
         """Watch only hidden files."""
@@ -329,9 +314,7 @@ class Watcher:
         """Don't follow symbolic links."""
         return self.follow_symlinks(False)
 
-    # =========================================================================
-    # TYPE FILTERS
-    # =========================================================================
+    # Type Filters
 
     def files_only(self) -> Watcher:
         """Watch only files, not directories."""
@@ -351,9 +334,7 @@ class Watcher:
         self._dirs_only = False
         return self
 
-    # =========================================================================
-    # CUSTOM FILTERS
-    # =========================================================================
+    # Custom Filters
 
     def filter(self, fn: Callable[[Path], bool]) -> Watcher:
         """
@@ -372,9 +353,7 @@ class Watcher:
         """Alias for filter()."""
         return self.filter(fn)
 
-    # =========================================================================
-    # CALLBACKS
-    # =========================================================================
+    # Callbacks
 
     def on_created(self, callback: Callable[[WatchEvent], None]) -> Watcher:
         """
@@ -441,9 +420,7 @@ class Watcher:
         self._error_callback = callback
         return self
 
-    # =========================================================================
-    # EXECUTION
-    # =========================================================================
+    # Execution
 
     def start(self, blocking: bool = False) -> Watcher:
         """
@@ -495,9 +472,7 @@ class Watcher:
         """Check if watcher is running."""
         return self._running
 
-    # =========================================================================
-    # INTERNAL METHODS
-    # =========================================================================
+    # Internal Methods
 
     def _matches_pattern(self, path: Path) -> bool:
         """Check if path matches any include pattern."""
@@ -779,9 +754,7 @@ class Watcher:
 
             time.sleep(check_interval)
 
-    # =========================================================================
-    # CONTEXT MANAGER
-    # =========================================================================
+    # Context Manager
 
     def __enter__(self) -> Watcher:
         self.start()
@@ -791,9 +764,7 @@ class Watcher:
         self.stop()
 
 
-# =============================================================================
 # LEGACY BACKWARD-COMPATIBLE API (from former file_watcher module)
-# =============================================================================
 
 # Alias for legacy code that imported WatchEventType
 WatchEventType = EventType

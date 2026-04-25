@@ -40,9 +40,7 @@ def main() -> None:
 
         print(f"Sample project created at: {source_dir}\n")
 
-        # =========================================================================
-        # CREATE ZIP ARCHIVE
-        # =========================================================================
+        # Create Zip Archive
 
         print("=== Create ZIP Archive ===\n")
 
@@ -57,9 +55,7 @@ def main() -> None:
         for item in zfs.list_archive(zip_file):
             print(f"  - {item}")
 
-        # =========================================================================
-        # CREATE TAR ARCHIVE (NO COMPRESSION)
-        # =========================================================================
+        # Create Tar Archive (No Compression)
 
         print("\n=== Create TAR Archive ===\n")
 
@@ -69,9 +65,7 @@ def main() -> None:
         print(f"Created: {tar_file}")
         print(f"Size: {tar_file.stat().st_size} bytes")
 
-        # =========================================================================
-        # CREATE COMPRESSED TAR ARCHIVES
-        # =========================================================================
+        # Create Compressed Tar Archives
 
         print("\n=== Create Compressed TAR Archives ===\n")
 
@@ -97,9 +91,7 @@ def main() -> None:
         print(f"  BZIP2:            {tar_bz2.stat().st_size} bytes")
         print(f"  XZ:               {tar_xz.stat().st_size} bytes")
 
-        # =========================================================================
-        # EXTRACT ZIP ARCHIVE
-        # =========================================================================
+        # Extract Zip Archive
 
         print("\n=== Extract ZIP Archive ===\n")
 
@@ -112,9 +104,7 @@ def main() -> None:
             if f.is_file():
                 print(f"  - {f.relative_to(extract_zip_dir)}")
 
-        # =========================================================================
-        # EXTRACT TAR ARCHIVE
-        # =========================================================================
+        # Extract Tar Archive
 
         print("\n=== Extract TAR.GZ Archive ===\n")
 
@@ -127,9 +117,7 @@ def main() -> None:
             if f.is_file():
                 print(f"  - {f.relative_to(extract_tar_dir)}")
 
-        # =========================================================================
-        # AUTO-DETECT ARCHIVE FORMAT
-        # =========================================================================
+        # Auto-Detect Archive Format
 
         print("\n=== Auto-Detect Archive Format ===\n")
 
@@ -145,9 +133,7 @@ def main() -> None:
         print(f"  TAR.GZ extracted: {(extract_auto_dir / 'from_tar_gz').exists()}")
         print(f"  TAR.XZ extracted: {(extract_auto_dir / 'from_tar_xz').exists()}")
 
-        # =========================================================================
-        # FILTERED ARCHIVING
-        # =========================================================================
+        # Filtered Archiving
 
         print("\n=== Filtered Archiving ===\n")
 
@@ -175,9 +161,7 @@ def main() -> None:
         for item in zfs.list_archive(no_tests_zip):
             print(f"  - {item}")
 
-        # =========================================================================
-        # FILTERED EXTRACTION
-        # =========================================================================
+        # Filtered Extraction
 
         print("\n=== Filtered Extraction ===\n")
 
@@ -195,9 +179,7 @@ def main() -> None:
             if f.is_file():
                 print(f"  - {f.relative_to(filtered_extract)}")
 
-        # =========================================================================
-        # VERIFY ARCHIVE INTEGRITY
-        # =========================================================================
+        # Verify Archive Integrity
 
         print("\n=== Verify Archive Roundtrip ===\n")
 

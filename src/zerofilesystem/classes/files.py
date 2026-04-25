@@ -20,9 +20,7 @@ from zerofilesystem.classes._internal import (
     MAX_RENAME_CONFLICTS,
 )
 
-# =============================================================================
 # FileMeta — File and directory metadata
-# =============================================================================
 
 
 class FileMeta:
@@ -62,9 +60,7 @@ class FileMeta:
         return usage.total, usage.used, usage.free
 
 
-# =============================================================================
 # FileHasher — File hashing
-# =============================================================================
 
 
 class FileHasher:
@@ -105,9 +101,7 @@ class FileHasher:
         return h.hexdigest()
 
 
-# =============================================================================
 # FileSync — File move and copy operations
-# =============================================================================
 
 
 class FileSync:
@@ -213,9 +207,7 @@ class FileSync:
         return True
 
 
-# =============================================================================
 # FileCleaner — File and directory cleanup
-# =============================================================================
 
 
 class FileCleaner:
@@ -300,9 +292,7 @@ class FileCleaner:
         return removed
 
 
-# =============================================================================
 # FileFinder — File discovery and searching
-# =============================================================================
 
 
 class FileFinder:
