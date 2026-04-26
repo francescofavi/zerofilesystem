@@ -1,3 +1,4 @@
+# Python artifacts
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -11,18 +12,21 @@ htmlcov/
 # All hidden directories (starts with .)
 .*/
 
-# Keep .gitignore, .github, and .internal_docs (maintainer-only docs, not shipped to PyPI)
+# Symlinks to out-of-tree dev caches/venvs (not always matched by .*/)
+.mypy_cache
+.venv
+
+# Keep tracked dotfiles/dotdirs (maintainer-only — excluded from PyPI sdist via pyproject)
 !.gitignore
 !.github/
 !.internal_docs/
+!.python-version
+!.pre-commit-config.yaml
+!.release-please-manifest.json
 
-# Hidden files to ignore
+# Hidden files to ignore (genuinely local, never committed)
 .DS_Store
-.coverage
 .env
-
-# Lock file (library - not committed)
-uv.lock
 
 # Other files
 *.swp
@@ -33,12 +37,6 @@ uv.lock
 # Virtual environments (non-hidden)
 env/
 venv/
-/.scripts/
-/.venv/
 
-# Hidden helper files
-.run.sh
-.setup.sh
-.setup.bat
-.check_quality.py
-/.venv/
+# Library: uv.lock not committed (deterministic resolution is for apps, not libs)
+uv.lock

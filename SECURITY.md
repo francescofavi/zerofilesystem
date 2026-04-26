@@ -1,16 +1,15 @@
 # Security Policy
 
-## Supported Versions
-
-Only the latest minor release on PyPI receives security fixes.
-
 ## Reporting a Vulnerability
 
-Please report security vulnerabilities privately via GitHub Security
-Advisories:
+This package is a personal portfolio / hobby project, maintained on
+a best-effort basis in spare time. There is no support contract and
+no guaranteed response time.
+
+That said, security reports are appreciated. Please report issues
+privately via:
 
 https://github.com/francescofavi/zerofilesystem/security/advisories/new
 
-Do **not** open a public issue for security problems.
-
-Expect an initial response within 7 days.
+As an additional channel, you may also email `ffavidev@gmail.com`.
+Reports will be triaged when time permits.

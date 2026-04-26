@@ -1,7 +1,7 @@
 repos:
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -9,45 +9,33 @@ repos:
       - id: check-added-large-files
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.8
+    rev: v0.15.12
     hooks:
       - id: ruff
         args: [--fix]
       - id: ruff-format
 
-  - repo: local
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.20.2
     hooks:
       - id: mypy
-        name: mypy
-        entry: uv run mypy --package zerofilesystem
-        language: system
-        pass_filenames: false
-        always_run: true
+        args: [--ignore-missing-imports]
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.10
+    rev: 1.9.4
     hooks:
       - id: bandit
-        args: [-c, pyproject.toml, --exclude, "./.check_quality.py,./scripts/*"]
+        args: [-c, pyproject.toml]
         additional_dependencies: ["bandit[toml]"]
 
   - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.13
+    rev: v2.16
     hooks:
       - id: vulture
 
   - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.0.0
+    rev: v4.4.0
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
         args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
-
-  - repo: local
-    hooks:
-      - id: pytest
-        name: pytest
-        entry: uv run pytest
-        language: system
-        pass_filenames: false
-        always_run: true

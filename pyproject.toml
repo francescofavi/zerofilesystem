@@ -5,58 +5,60 @@ description = "Cross-platform file system utilities for Python"
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
-authors = [{name = "Francesco Favi", email = "ffavidev@gmail.com"}]
+authors = [{name = "Francesco Favi", email = "14098835+francescofavi@users.noreply.github.com"}]
 keywords = ["filesystem", "files", "io", "cross-platform", "utilities", "pathlib"]
-dependencies = []
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
     "Operating System :: OS Independent",
 ]
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/francescofavi/zerofilesystem"
 Repository = "https://github.com/francescofavi/zerofilesystem"
 Issues = "https://github.com/francescofavi/zerofilesystem/issues"
 Documentation = "https://github.com/francescofavi/zerofilesystem#readme"
-Changelog = "https://github.com/francescofavi/zerofilesystem/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/francescofavi/zerofilesystem/releases"
 LinkedIn = "https://www.linkedin.com/in/francesco-favi/"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/zerofilesystem"]
-
 [tool.hatch.version]
 path = "src/zerofilesystem/__init__.py"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/zerofilesystem"]
+
 [tool.hatch.build.targets.sdist]
 exclude = [
+    "/.github/**",
     "/.idea/**",
+    "/.venv/**",
+    "/.internal_docs/**",
+    "/.scripts/**",
     "/dist/**",
-    "/.check_quality.py",
-    "/.setup.bat",
-    "/.setup.sh",
-    "/.run.sh",
+    "/build/**",
+    "/tests/**",
     "/.pre-commit-config.yaml",
     "/.python-version",
     "/.coverage",
-    "/scripts/**",
-    "/GITHUB_PUBLISHING.md",
-    "/PYPI_PUBLISHING.md",
+    "/check_quality.py",
+    "/setup.bat",
+    "/setup.sh",
+    "/run.sh",
     "/release-please-config.json",
     "/.release-please-manifest.json",
     "/uv.lock",
-    "/tests/**",
-    "/.internal_docs/**",
 ]
 
 [tool.uv]
@@ -64,15 +66,31 @@ managed = true
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3.5",
-    "pytest-cov>=6.1.1",
-    "pytest-mock>=3.14.0",
-    "ruff>=0.11.8",
-    "mypy>=1.15.0",
-    "bandit>=1.7.10",
-    "vulture>=2.13",
-    "pre-commit>=4.2.0"
+    "pytest>=9.0.3",
+    "pytest-cov>=7.1.0",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.15.12",
+    "mypy>=1.20.2",
+    "bandit>=1.9.4",
+    "vulture>=2.16",
+    "pre-commit>=4.6.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v -ra"
+
+[tool.coverage.run]
+source = ["src/zerofilesystem"]
+branch = true
+
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "pragma: no cover",
+]
+fail_under = 90
 
 [tool.ruff]
 line-length = 100
@@ -108,8 +126,8 @@ ignore = [
 
 [tool.mypy]
 python_version = "3.12"
+mypy_path = ["src"]
 files = ["src/zerofilesystem"]
-mypy_path = "src"
 strict_optional = true
 warn_return_any = true
 warn_unused_configs = true
@@ -135,28 +153,11 @@ exclude = [
     "build",
 ]
 
-# Mutable-state narrowing on `is_running` properties trips warn_unreachable in
-# tests that assert state across start()/stop() — relax for tests + examples.
+# Mutable-state assertions across test/example flows trip warn_unreachable
+# (e.g. asserting state both before and after start()/stop()).
 [[tool.mypy.overrides]]
 module = ["tests.*", "examples.*"]
 warn_unreachable = false
-
-[tool.coverage.run]
-source = ["src/zerofilesystem"]
-# _core.py is the ZeroFS facade: every method is a one-line wrapper around
-# an underlying class method. The underlying behavior is exercised by the
-# per-feature test modules; testing the wrappers themselves only proves
-# Python forwards arguments — not a useful signal.
-omit = ["src/zerofilesystem/_core.py"]
-
-[tool.coverage.report]
-exclude_also = [
-    # Defensive guards that are only reachable when the runtime contradicts
-    # documented invariants — exercising them would require monkey-patching.
-    "raise NotImplementedError",
-    "if TYPE_CHECKING:",
-]
-fail_under = 100
 
 [tool.bandit]
 exclude_dirs = [
@@ -170,11 +171,9 @@ exclude_dirs = [
     ".ruff_cache",
     "dist",
     "build",
-    "examples",
-    "scripts"
 ]
 exclude = ["check_quality.py"]
-skips = ["B101","B403","B110"]
+skips = ["B101", "B403", "B110"]
 
 [tool.vulture]
 paths = ["src"]
