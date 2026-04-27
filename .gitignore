@@ -26,6 +26,7 @@ htmlcov/
 # Hidden files to ignore (genuinely local, never committed)
 .DS_Store
 .env
+.codex
 
 # Other files
 *.swp
