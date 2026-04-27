@@ -72,7 +72,7 @@ from zerofilesystem.classes import (
     ZeroFSError,
 )
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "Francesco Favi"
 __email__ = "14098835+francescofavi@users.noreply.github.com"
 
