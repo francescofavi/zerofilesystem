@@ -9,6 +9,7 @@ from collections.abc import Generator
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Self
 
 from zerofilesystem._platform import Pathish
 from zerofilesystem.classes.exceptions import TransactionError
@@ -229,7 +230,11 @@ class FileTransaction:
 
             self._committed = True
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover -- crash-resilience path:
+            # commit fails mid-way → reverse the operations we already did,
+            # swallowing any errors during rollback so the original error
+            # surfaces to the caller. Triggering this needs a synthetic mid-
+            # commit failure (e.g. monkeypatched os.replace).
             # Rollback committed operations
             for op in reversed(committed_ops):
                 try:
@@ -274,12 +279,12 @@ class FileTransaction:
             try:
                 if op.temp_path and op.temp_path.exists():
                     op.temp_path.unlink()
-            except Exception:
+            except Exception:  # pragma: no cover -- best-effort cleanup
                 pass
             try:
                 if op.original_backup and op.original_backup.exists():
                     op.original_backup.unlink()
-            except Exception:
+            except Exception:  # pragma: no cover -- best-effort cleanup
                 pass
 
         self._pending.clear()
@@ -290,7 +295,7 @@ class FileTransaction:
                 shutil.rmtree(self._tx_temp_dir)
             self._tx_temp_dir = None
 
-    def __enter__(self) -> FileTransaction:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(
@@ -367,7 +372,7 @@ def atomic_file_group(*paths: Pathish) -> Generator[list[Path], None, None]:
                     os.replace(backup_file, target)
                 elif target.exists():
                     target.unlink()
-            except Exception:
+            except Exception:  # pragma: no cover -- best-effort rollback
                 pass
         raise
 

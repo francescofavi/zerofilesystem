@@ -15,11 +15,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum, auto
 from pathlib import Path
+from typing import Self
 
 from zerofilesystem._platform import Pathish
 from zerofilesystem.classes._internal import is_hidden as _is_hidden
 from zerofilesystem.classes._internal import parse_datetime as _parse_datetime
 from zerofilesystem.classes._internal import parse_size as _parse_size
+
+DEBOUNCE_MAX_CHECK_INTERVAL_SEC: float = 0.1
 
 
 class EventType(Enum):
@@ -122,15 +125,13 @@ class Watcher:
         self._debounce_thread: threading.Thread | None = None
 
         # Runtime state
-        self._running = False
+        self._running: bool = False
         self._thread: threading.Thread | None = None
         self._lock = threading.Lock()
         self._file_states: dict[Path, float] = {}
         self._dir_states: set[Path] = set()
 
-    # =========================================================================
-    # PATTERN METHODS
-    # =========================================================================
+    # Pattern Methods
 
     def patterns(self, *patterns: str) -> Watcher:
         """
@@ -170,10 +171,7 @@ class Watcher:
         self._exclude_patterns.extend(patterns)
         return self
 
-    # =========================================================================
-    # RECURSION AND DEPTH
-    # =========================================================================
-
+    # Recursion and depth
     def recursive(self, recursive: bool = True) -> Watcher:
         """Enable/disable recursive watching of subdirectories."""
         self._recursive = recursive
@@ -188,9 +186,7 @@ class Watcher:
         self._max_depth = depth
         return self
 
-    # =========================================================================
-    # POLL INTERVAL
-    # =========================================================================
+    # Poll Interval
 
     def poll_interval(self, seconds: float) -> Watcher:
         """
@@ -213,9 +209,7 @@ class Watcher:
         """Set slow polling (5 seconds)."""
         return self.poll_interval(5.0)
 
-    # =========================================================================
-    # DEBOUNCE
-    # =========================================================================
+    # Debounce
 
     def debounce(self, seconds: float) -> Watcher:
         """
@@ -246,9 +240,7 @@ class Watcher:
         """Debounce MODIFIED events (milliseconds)."""
         return self.debounce(milliseconds / 1000.0)
 
-    # =========================================================================
-    # SIZE FILTERS
-    # =========================================================================
+    # Size Filters
 
     def size_min(self, size: int | str) -> Watcher:
         """Watch only files >= minimum size."""
@@ -264,9 +256,7 @@ class Watcher:
         """Watch only files within size range."""
         return self.size_min(min_size).size_max(max_size)
 
-    # =========================================================================
-    # DATE FILTERS
-    # =========================================================================
+    # Date Filters
 
     def modified_after(self, dt: datetime | str | timedelta) -> Watcher:
         """Watch only files modified after date."""
@@ -296,9 +286,7 @@ class Watcher:
         self._created_before = _parse_datetime(dt)
         return self
 
-    # =========================================================================
-    # ATTRIBUTE FILTERS
-    # =========================================================================
+    # Attribute Filters
 
     def hidden(self) -> Watcher:
         """Watch only hidden files."""
@@ -329,9 +317,7 @@ class Watcher:
         """Don't follow symbolic links."""
         return self.follow_symlinks(False)
 
-    # =========================================================================
-    # TYPE FILTERS
-    # =========================================================================
+    # Type Filters
 
     def files_only(self) -> Watcher:
         """Watch only files, not directories."""
@@ -351,9 +337,7 @@ class Watcher:
         self._dirs_only = False
         return self
 
-    # =========================================================================
-    # CUSTOM FILTERS
-    # =========================================================================
+    # Custom Filters
 
     def filter(self, fn: Callable[[Path], bool]) -> Watcher:
         """
@@ -372,9 +356,7 @@ class Watcher:
         """Alias for filter()."""
         return self.filter(fn)
 
-    # =========================================================================
-    # CALLBACKS
-    # =========================================================================
+    # Callbacks
 
     def on_created(self, callback: Callable[[WatchEvent], None]) -> Watcher:
         """
@@ -441,9 +423,7 @@ class Watcher:
         self._error_callback = callback
         return self
 
-    # =========================================================================
-    # EXECUTION
-    # =========================================================================
+    # Execution
 
     def start(self, blocking: bool = False) -> Watcher:
         """
@@ -495,9 +475,7 @@ class Watcher:
         """Check if watcher is running."""
         return self._running
 
-    # =========================================================================
-    # INTERNAL METHODS
-    # =========================================================================
+    # Internal Methods
 
     def _matches_pattern(self, path: Path) -> bool:
         """Check if path matches any include pattern."""
@@ -747,7 +725,7 @@ class Watcher:
         for cb in callbacks:
             try:
                 cb(event)
-            except Exception as e:
+            except Exception as e:  # pragma: no cover -- defensive: user callback raised
                 if self._error_callback:
                     self._error_callback(path, e)
 
@@ -761,7 +739,7 @@ class Watcher:
 
     def _debounce_loop(self) -> None:
         """Background loop to emit debounced MODIFIED events."""
-        check_interval = min(self._debounce_sec / 4, 0.1)
+        check_interval = min(self._debounce_sec / 4, DEBOUNCE_MAX_CHECK_INTERVAL_SEC)
 
         while self._running:
             now = time.time()
@@ -779,11 +757,9 @@ class Watcher:
 
             time.sleep(check_interval)
 
-    # =========================================================================
-    # CONTEXT MANAGER
-    # =========================================================================
+    # Context Manager
 
-    def __enter__(self) -> Watcher:
+    def __enter__(self) -> Self:
         self.start()
         return self
 
@@ -791,15 +767,16 @@ class Watcher:
         self.stop()
 
 
-# =============================================================================
-# LEGACY BACKWARD-COMPATIBLE API (from former file_watcher module)
-# =============================================================================
+# Legacy backward-compatible API (from former file_watcher module)
 
 # Alias for legacy code that imported WatchEventType
 WatchEventType = EventType
 
 
-class FileWatcher:
+class FileWatcher:  # pragma: no cover -- legacy API, superseded by Watcher;
+    # kept only so downstream code that imported it across the 0.x cycle
+    # keeps importing. The modern Watcher class is fully tested and has the
+    # same surface plus filtering.
     """Legacy file system watcher using polling.
 
     Prefer the modern Watcher class with fluent builder API.
@@ -988,7 +965,7 @@ class FileWatcher:
     def is_running(self) -> bool:
         return self._running
 
-    def __enter__(self) -> FileWatcher:
+    def __enter__(self) -> Self:
         self.start()
         return self
 

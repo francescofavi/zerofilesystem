@@ -72,7 +72,7 @@ class ArchiveHandler:
 
             return out_p
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover -- mid-write filesystem failure
             raise ArchiveError(
                 f"Failed to create tar archive: {e}",
                 path=output,
@@ -135,7 +135,7 @@ class ArchiveHandler:
 
             return out_p
 
-        except Exception as e:
+        except Exception as e:  # pragma: no cover -- mid-write filesystem failure
             raise ArchiveError(
                 f"Failed to create zip archive: {e}",
                 path=output,

@@ -37,9 +37,7 @@ def main() -> None:
 
         print(f"Source directory created at: {source}\n")
 
-        # =========================================================================
-        # COPY DIRECTORY TREE
-        # =========================================================================
+        # Copy Directory Tree
 
         print("=== Copy Directory Tree ===\n")
 
@@ -52,9 +50,7 @@ def main() -> None:
             if f.is_file():
                 print(f"  - {f.relative_to(dest_copy)}")
 
-        # =========================================================================
-        # COPY WITH FILTER
-        # =========================================================================
+        # Copy with Filter
 
         print("\n=== Copy with Filter (Python files only) ===\n")
 
@@ -70,9 +66,7 @@ def main() -> None:
             if f.is_file():
                 print(f"  - {f.relative_to(dest_filtered)}")
 
-        # =========================================================================
-        # SYNC DIRECTORIES
-        # =========================================================================
+        # Sync Directories
 
         print("\n=== Sync Directories ===\n")
 
@@ -112,9 +106,7 @@ def main() -> None:
         print("\nAfter sync (with delete_extra):")
         print(f"  Dest: {[f.name for f in sync_dest.iterdir()]}")
 
-        # =========================================================================
-        # TEMPORARY DIRECTORY
-        # =========================================================================
+        # Temporary Directory
 
         print("\n=== Temporary Directory ===\n")
 
@@ -141,10 +133,7 @@ def main() -> None:
 
         shutil.rmtree(keep_dir)
 
-        # =========================================================================
-        # DIRECTORY SIZE AND FILE COUNT
-        # =========================================================================
-
+        # Directory size and file count
         print("\n=== Directory Size and File Count ===\n")
 
         size = zfs.tree_size(source)
@@ -154,9 +143,7 @@ def main() -> None:
         print(f"  Total size: {size} bytes")
         print(f"  File count: {count} files")
 
-        # =========================================================================
-        # MOVE DIRECTORY TREE
-        # =========================================================================
+        # Move Directory Tree
 
         print("\n=== Move Directory Tree ===\n")
 
@@ -183,9 +170,7 @@ def main() -> None:
             if f.is_file():
                 print(f"  - {f.relative_to(move_dest)}")
 
-        # =========================================================================
-        # FLATTEN DIRECTORY TREE
-        # =========================================================================
+        # Flatten Directory Tree
 
         print("\n=== Flatten Directory Tree ===\n")
 

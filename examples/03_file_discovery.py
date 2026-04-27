@@ -50,14 +50,15 @@ def create_sample_project(base: Path) -> None:
 
 def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
-        tmp_path = Path(tmp)
+        # resolve() so relative_to() matches what zfs.find_files returns on
+        # platforms where the temp dir uses symlinks (macOS /var -> /private/var)
+        # or short 8.3 paths (Windows RUNNER~1 vs runneradmin).
+        tmp_path = Path(tmp).resolve()
         create_sample_project(tmp_path)
 
         print(f"Sample project created at: {tmp_path}\n")
 
-        # =========================================================================
-        # FIND ALL FILES
-        # =========================================================================
+        # Find All Files
 
         print("=== Find All Files (Recursive) ===\n")
 
@@ -68,9 +69,7 @@ def main() -> None:
         if len(all_files) > 5:
             print(f"  ... and {len(all_files) - 5} more")
 
-        # =========================================================================
-        # FIND BY EXTENSION
-        # =========================================================================
+        # Find By Extension
 
         print("\n=== Find Python Files ===\n")
 
@@ -79,9 +78,7 @@ def main() -> None:
         for f in py_files:
             print(f"  - {f.relative_to(tmp_path)}")
 
-        # =========================================================================
-        # FIND BY NAME PATTERN
-        # =========================================================================
+        # Find By Name Pattern
 
         print("\n=== Find Test Files ===\n")
 
@@ -90,9 +87,7 @@ def main() -> None:
         for f in test_files:
             print(f"  - {f.relative_to(tmp_path)}")
 
-        # =========================================================================
-        # NON-RECURSIVE SEARCH
-        # =========================================================================
+        # Non-Recursive Search
 
         print("\n=== Find Files in Root Only (Non-Recursive) ===\n")
 
@@ -101,9 +96,7 @@ def main() -> None:
         for f in root_files:
             print(f"  - {f.name}")
 
-        # =========================================================================
-        # CUSTOM FILTERS
-        # =========================================================================
+        # Custom Filters
 
         print("\n=== Custom Filter: Files Larger Than 1KB ===\n")
 
@@ -127,9 +120,7 @@ def main() -> None:
         for f in non_test_py:
             print(f"  - {f.relative_to(tmp_path)}")
 
-        # =========================================================================
-        # LIMITING RESULTS
-        # =========================================================================
+        # Limiting Results
 
         print("\n=== Limited Results ===\n")
 
@@ -138,9 +129,7 @@ def main() -> None:
         for f in first_three:
             print(f"  - {f.relative_to(tmp_path)}")
 
-        # =========================================================================
-        # RELATIVE PATHS
-        # =========================================================================
+        # Relative Paths
 
         print("\n=== Relative Paths ===\n")
 
@@ -149,9 +138,7 @@ def main() -> None:
         for f in relative_files:
             print(f"  - {f}")
 
-        # =========================================================================
-        # GENERATOR-BASED WALKING
-        # =========================================================================
+        # Generator-Based Walking
 
         print("\n=== Generator-Based Walking (Memory Efficient) ===\n")
 
@@ -162,9 +149,7 @@ def main() -> None:
                 print("  (stopping early for demo)")
                 break
 
-        # =========================================================================
-        # HIDDEN FILES
-        # =========================================================================
+        # Hidden Files
 
         print("\n=== Hidden File Detection ===\n")
 
@@ -177,9 +162,7 @@ def main() -> None:
         print(f"\n.gitignore is hidden: {zfs.is_hidden(tmp_path / '.gitignore')}")
         print(f"main.py is hidden: {zfs.is_hidden(tmp_path / 'main.py')}")
 
-        # =========================================================================
-        # SEARCHING IN SUBDIRECTORY
-        # =========================================================================
+        # Searching in Subdirectory
 
         print("\n=== Search in Specific Subdirectory ===\n")
 

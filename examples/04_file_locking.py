@@ -20,9 +20,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
 
-        # =========================================================================
-        # BASIC FILE LOCKING
-        # =========================================================================
+        # Basic File Locking
 
         print("=== Basic File Locking ===\n")
 
@@ -37,9 +35,7 @@ def main() -> None:
 
         print("Lock released!\n")
 
-        # =========================================================================
-        # MANUAL ACQUIRE/RELEASE
-        # =========================================================================
+        # Manual Acquire/Release
 
         print("=== Manual Acquire/Release ===\n")
 
@@ -54,9 +50,7 @@ def main() -> None:
         lock.release()
         print("Lock manually released\n")
 
-        # =========================================================================
-        # LOCK WITH TIMEOUT
-        # =========================================================================
+        # Lock with Timeout
 
         print("=== Lock with Timeout ===\n")
 
@@ -67,9 +61,7 @@ def main() -> None:
         except TimeoutError:
             print("Could not acquire lock within timeout")
 
-        # =========================================================================
-        # PROTECTING CONCURRENT ACCESS
-        # =========================================================================
+        # Protecting Concurrent Access
 
         print("\n=== Concurrent Access Protection ===\n")
 
@@ -128,9 +120,7 @@ def main() -> None:
         else:
             print("FAILURE: Counter value mismatch (race condition)")
 
-        # =========================================================================
-        # PROTECTING FILE WRITES
-        # =========================================================================
+        # Protecting File Writes
 
         print("\n=== Protecting File Writes ===\n")
 
@@ -156,9 +146,7 @@ def main() -> None:
 
         print(f"Final config: {zfs.read_json(config_file)}")
 
-        # =========================================================================
-        # LOCK FILE CLEANUP
-        # =========================================================================
+        # Lock File Cleanup
 
         print("\n=== Lock File Behavior ===\n")
 

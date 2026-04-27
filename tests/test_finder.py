@@ -381,3 +381,97 @@ class TestFinderEdgeCases:
         )
 
         assert len(files) == 1
+
+
+class TestFinderBuilderSetters:
+    """Verify every fluent builder method returns self and is invokable.
+
+    The setters are all simple ``self._x = ...; return self`` shapes; this
+    parametric test pins the contract without exhaustively asserting every
+    internal attribute. Wider behavior is exercised by the dedicated tests
+    above.
+    """
+
+    def test_setters_with_argument_return_self(self, tmp_path: Path) -> None:
+        f = Finder(tmp_path)
+        chain = (
+            f.pattern("*.py")
+            .patterns("*.txt", "*.md")
+            .exclude("__pycache__")
+            .max_depth(3)
+            .size_min("1KB")
+            .size_max("10MB")
+            .size_between("1B", "1GB")
+            .modified_after(datetime(2020, 1, 1))
+            .modified_before(datetime(2030, 1, 1))
+            .modified_between(datetime(2020, 1, 1), datetime(2030, 1, 1))
+            .modified_last_days(30)
+            .modified_last_hours(24)
+            .created_after(timedelta(days=365))
+            .created_before(datetime(2030, 1, 1))
+            .accessed_after(timedelta(days=30))
+            .accessed_before(datetime(2030, 1, 1))
+            .modified_today()
+            .non_recursive()
+            .recursive(True)
+            .first(5)
+            .filter(lambda _p: True)
+            .where(lambda _p: True)
+            .relative()
+            .absolute(True)
+        )
+        assert chain is f
+
+    def test_zero_arg_setters_return_self(self, tmp_path: Path) -> None:
+        f = Finder(tmp_path)
+        chain = (
+            f.hidden()
+            .not_hidden()
+            .empty()
+            .not_empty()
+            .follow_symlinks(True)
+            .no_symlinks()
+            .readable()
+            .writable()
+            .executable()
+            .files_only()
+            .dirs_only()
+            .files_and_dirs()
+        )
+        assert chain is f
+
+
+class TestFinderUtilities:
+    """Test count/exists/first_match/iter/len utility wrappers."""
+
+    def test_count_matches_walk_length(self, tmp_path: Path) -> None:
+        for i in range(5):
+            (tmp_path / f"f{i}.txt").write_text("x")
+        assert Finder(tmp_path).pattern("*.txt").count() == 5
+
+    def test_exists_true_when_match(self, tmp_path: Path) -> None:
+        (tmp_path / "x.py").write_text("x")
+        assert Finder(tmp_path).pattern("*.py").exists() is True
+
+    def test_exists_false_when_no_match(self, tmp_path: Path) -> None:
+        (tmp_path / "x.txt").write_text("x")
+        assert Finder(tmp_path).pattern("*.py").exists() is False
+
+    def test_first_match_returns_path(self, tmp_path: Path) -> None:
+        (tmp_path / "x.py").write_text("x")
+        assert Finder(tmp_path).pattern("*.py").first_match() is not None
+
+    def test_first_match_returns_none_when_empty(self, tmp_path: Path) -> None:
+        (tmp_path / "x.txt").write_text("x")
+        assert Finder(tmp_path).pattern("*.py").first_match() is None
+
+    def test_finder_is_iterable(self, tmp_path: Path) -> None:
+        (tmp_path / "x.py").write_text("x")
+        finder = Finder(tmp_path).pattern("*.py")
+        results = list(finder)
+        assert len(results) == 1
+
+    def test_finder_supports_len(self, tmp_path: Path) -> None:
+        for i in range(3):
+            (tmp_path / f"f{i}.py").write_text("x")
+        assert len(Finder(tmp_path).pattern("*.py")) == 3

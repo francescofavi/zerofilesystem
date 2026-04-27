@@ -8,10 +8,15 @@ This example demonstrates:
 - Automatic parent directory creation
 """
 
+import sys
 import tempfile
 from pathlib import Path
 
 import zerofilesystem as zfs
+
+# Force UTF-8 output so multilingual prints don't blow up on Windows cp1252.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
 def main() -> None:
@@ -19,9 +24,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
 
-        # =========================================================================
-        # TEXT FILE OPERATIONS
-        # =========================================================================
+        # Text File Operations
 
         print("=== Text File Operations ===\n")
 
@@ -49,9 +52,7 @@ Line 3: Conclusion""",
         )
         print(f"Created multiline file: {multiline_file}")
 
-        # =========================================================================
-        # AUTOMATIC DIRECTORY CREATION
-        # =========================================================================
+        # Automatic Directory Creation
 
         print("\n=== Automatic Directory Creation ===\n")
 
@@ -61,9 +62,7 @@ Line 3: Conclusion""",
         print(f"Created nested file: {nested_file}")
         print("Parent directories were created automatically!")
 
-        # =========================================================================
-        # BINARY FILE OPERATIONS
-        # =========================================================================
+        # Binary File Operations
 
         print("\n=== Binary File Operations ===\n")
 
@@ -85,9 +84,7 @@ Line 3: Conclusion""",
         zfs.write_bytes(fake_image, png_header)
         print(f"\nCreated fake PNG: {fake_image}")
 
-        # =========================================================================
-        # ATOMIC WRITES
-        # =========================================================================
+        # Atomic Writes
 
         print("\n=== Atomic Writes (Default) ===\n")
 
@@ -111,9 +108,7 @@ Line 3: Conclusion""",
         zfs.write_text(important_file, "Fast update", atomic=False)
         print("\nNon-atomic update complete")
 
-        # =========================================================================
-        # UNICODE SUPPORT
-        # =========================================================================
+        # Unicode Support
 
         print("\n=== Unicode Support ===\n")
 

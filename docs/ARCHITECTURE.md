@@ -35,8 +35,8 @@ src/zerofilesystem/
     └── archive_handler.py  # ArchiveHandler (tar, zip)
 ```
 
-**File count**: 17 source files
-**Total LOC**: ~6300
+**File count**: 18 source files
+**Total LOC**: ~6225
 
 ---
 
@@ -89,22 +89,22 @@ Direct access to the implementation classes. Useful when only a specific feature
 |--------|---------|-----|----------------|
 | `_platform.py` | — | 13 | Platform detection (`IS_WINDOWS`, `IS_MACOS`, etc.), `Pathish` type alias |
 | `exceptions.py` | 9 exceptions | 164 | Exception hierarchy rooted at `ZeroFSError` |
-| `_internal.py` | — | 107 | Shared constants (`HASH_CHUNK_SIZE`, `SIZE_UNITS`), utility functions (`parse_size`, `parse_datetime`, `is_hidden`) |
+| `_internal.py` | — | 103 | Shared constants (`HASH_CHUNK_SIZE`, `SIZE_UNITS`), utility functions (`parse_size`, `parse_datetime`, `is_hidden`) |
 
 ### Feature Modules
 
 | Module | Classes | LOC | Responsibility |
 |--------|---------|-----|----------------|
-| `io.py` | `FileIO`, `JsonHandler`, `GzipHandler`, `FileUtils` | 357 | Text/binary I/O, JSON, gzip, atomic writes |
-| `files.py` | `FileMeta`, `FileHasher`, `FileSync`, `FileCleaner`, `FileFinder` | 440 | File metadata, hashing, sync, cleanup, discovery |
-| `finder.py` | `Finder` | 603 | Fluent builder API for file search |
-| `watcher.py` | `Watcher`, `FileWatcher`, `EventType`, `WatchEvent` | 996 | File system monitoring with polling |
-| `file_lock.py` | `FileLock` | 171 | Cross-platform advisory file locking |
-| `file_transaction.py` | `FileTransaction`, `atomic_file_group` | 375 | Multi-file transactions with rollback |
+| `io.py` | `FileIO`, `JsonHandler`, `GzipHandler`, `FileUtils` | 364 | Text/binary I/O, JSON, gzip, atomic writes |
+| `files.py` | `FileMeta`, `FileHasher`, `FileSync`, `FileCleaner`, `FileFinder` | 443 | File metadata, hashing, sync, cleanup, discovery |
+| `finder.py` | `Finder` | 582 | Fluent builder API for file search |
+| `watcher.py` | `Watcher`, `FileWatcher`, `EventType`, `WatchEvent` | 973 | File system monitoring with polling |
+| `file_lock.py` | `FileLock` | 174 | Cross-platform advisory file locking |
+| `file_transaction.py` | `FileTransaction`, `atomic_file_group` | 382 | Multi-file transactions with rollback |
 | `path_utils.py` | `PathUtils` | 301 | Path normalization, validation, expansion |
-| `file_permissions.py` | `FilePermissions`, `FileMetadata` | 320 | Permissions, timestamps, extended metadata |
-| `directory_ops.py` | `DirectoryOps`, `SyncResult` | 450 | Tree copy/move/sync, temp directories |
-| `integrity_checker.py` | `IntegrityChecker`, `ManifestEntry`, `VerificationResult` | 391 | Directory hashing, manifest, verification |
+| `file_permissions.py` | `FilePermissions`, `FileMetadata` | 321 | Permissions, timestamps, extended metadata |
+| `directory_ops.py` | `DirectoryOps`, `SyncResult` | 454 | Tree copy/move/sync, temp directories |
+| `integrity_checker.py` | `IntegrityChecker`, `ManifestEntry`, `VerificationResult` | 393 | Directory hashing, manifest, verification |
 | `secure_ops.py` | `SecureOps` | 255 | Secure delete, private files/directories |
 | `archive_handler.py` | `ArchiveHandler` | 348 | Tar and zip creation/extraction |
 
@@ -261,4 +261,4 @@ Standard library exceptions (`FileNotFoundError`, `PermissionError`, `TimeoutErr
 
 **Beta** (`Development Status :: 4 - Beta` in pyproject.toml).
 
-Current version: `0.1.0`.
+Current version: `0.1.3` (declared in `src/zerofilesystem/__init__.py`, read by Hatch via `[tool.hatch.version]`).

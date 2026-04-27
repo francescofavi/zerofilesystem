@@ -13,9 +13,7 @@ from pathlib import Path
 
 from zerofilesystem._platform import IS_WINDOWS
 
-# =============================================================================
-# SHARED CONSTANTS
-# =============================================================================
+# Shared Constants
 
 FILE_ATTRIBUTE_HIDDEN: int = 0x2
 FILE_ATTRIBUTE_READONLY: int = 0x1
@@ -38,9 +36,7 @@ SIZE_UNITS: dict[str, int] = {
 }
 
 
-# =============================================================================
-# SHARED FUNCTIONS
-# =============================================================================
+# Shared Functions
 
 
 def parse_size(size: int | str) -> int:
@@ -97,7 +93,7 @@ def is_hidden(path: Path) -> bool:
     if path.name.startswith("."):
         return True
 
-    if IS_WINDOWS:
+    if IS_WINDOWS:  # pragma: no cover -- Windows-only, exercised by Windows CI runner
         try:
             attrs = os.stat(path).st_file_attributes  # type: ignore[attr-defined]
             return bool(attrs & FILE_ATTRIBUTE_HIDDEN)
