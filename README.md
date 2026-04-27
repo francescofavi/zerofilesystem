@@ -13,32 +13,34 @@
 [![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg?cacheSeconds=0)]()
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg?cacheSeconds=0)](https://docs.astral.sh/ruff/)
 
-Cross-platform file system utilities for Python 3.12+. Zero runtime dependencies.
+**One library for safe filesystem ops on Linux/macOS/Windows: atomic writes, transactions, file locks, finder, watcher, integrity manifests, archives. Pure stdlib, zero runtime dependencies.**
 
-## Problem
+## Why zerofilesystem
 
-Reliable file handling in Python normally means stitching together `os`, `shutil`, `pathlib`, `json`, `gzip`, `tarfile`, `zipfile`, `hashlib`, `fcntl`/`msvcrt`, `tempfile` and `secrets`, then carefully wrapping each operation to make it atomic, cross-platform, and crash-safe. The pain shows up in three recurring places: writes that can be left half-finished if the process dies, multi-file operations that have no rollback when one of them fails, and platform-specific behavior — file locking, hidden attributes, executable bits, path normalization — that has to be re-derived in every project.
+Reliable file handling in Python usually means stitching together `os`, `shutil`, `pathlib`, `json`, `gzip`, `tarfile`, `zipfile`, `hashlib`, `fcntl`/`msvcrt`, `tempfile` and `secrets`, then re-deriving the same atomicity, rollback and platform glue in every project. The bugs that result are recognizable: half-written config files when a process dies, multi-file changes left in a half-applied state, and "works on Linux, breaks on Windows" tickets.
 
-The cost of getting these right is rarely the headline feature, but the cost of getting them wrong is corrupted config files, partial deploys, and "works on Linux, breaks on Windows" bug reports.
+`zerofilesystem` collapses those primitives into a single, flat API where the safe behavior is the default — for Python 3.12+ projects that need predictable file I/O across Linux, macOS, and Windows.
 
-## Solution
+## What you get
 
-`zerofilesystem` consolidates these primitives behind a single, flat API and makes safe behavior the default. Atomic writes are on by default (temp file plus `os.replace`). `FileTransaction` groups multiple writes/copies/deletes under a single commit-or-rollback umbrella. `FileLock` exposes one cross-platform locking interface backed by `fcntl` on Unix/macOS and `msvcrt` on Windows. `Finder` and `Watcher` provide fluent builder APIs for filtered search and polling-based monitoring. Archive extraction guards against zip-slip path traversal. Every public function accepts both `str` and `pathlib.Path`.
+- **Atomic writes by default** — text, binary, and JSON writes use a temp file plus `os.replace`, so a crash never leaves a half-written file.
+- **Fluent file finder** — `Finder` chains patterns, exclusions, size/date/permission filters, and depth limits into a single readable query.
+- **Polling file watcher** — `Watcher` raises created/modified/deleted callbacks with debouncing, and shares the same filter vocabulary as `Finder`.
+- **Multi-file transactions** — group writes, copies, and deletes under one `FileTransaction`; on error, every step rolls back.
+- **One cross-platform lock** — `FileLock` exposes the same interface on Unix/macOS (`fcntl`) and Windows (`msvcrt`), with optional timeout.
+- **Integrity, archives, and secure ops** — directory hashing and manifests, tar/zip create/extract with zip-slip protection, `secure_delete`, `private_directory` (0o700), `create_private_file` (0o600).
 
-The library is built on the standard library only — no external runtime dependencies — and ships a `py.typed` marker for full PEP 561 typing.
+## How it works
 
-## What it gives you
+Every public function is built only on the Python standard library and accepts both `str` and `pathlib.Path`. Atomic writes are temp file plus atomic rename. `FileTransaction` records the operations it performs and reverses them on failure. `FileLock` dispatches to `fcntl` or `msvcrt` depending on the platform. The watcher is polling-based — it trades sub-second latency for portability and zero dependencies. The package ships a `py.typed` marker for full PEP 561 typing.
 
-- **Atomic text/binary/JSON writes** — temp file + atomic rename, on by default. `zfs.write_text("config.json", data)`.
-- **Multi-file transactions** — commit several writes/copies/deletes together, automatic rollback on error. `with zfs.FileTransaction() as tx: ...`.
-- **Cross-platform file locking** — same interface on Unix and Windows, with optional timeout. `with zfs.FileLock("/tmp/app.lock", timeout=5): ...`.
-- **Fluent file finder** — patterns, exclusions, size/date/permission filters, depth limits. `Finder("./src").patterns("*.py").modified_last_days(7).find()`.
-- **Polling file watcher** — created/modified/deleted callbacks with debouncing and the same filter vocabulary as `Finder`.
-- **Integrity verification** — `directory_hash`, `create_manifest`/`verify_manifest`, `compare_directories`, `snapshot_hash`.
-- **Archives** — tar (gz/bz2/xz) and zip create/extract with filtering, base-dir control, and zip-slip protection.
-- **Secure operations** — `secure_delete` (multi-pass overwrite), `private_directory` (0o700), `create_private_file` (0o600).
-- **Path utilities** — normalize, expand `~`/env vars, validate, posix conversion, subpath checks.
-- **Permissions and metadata** — `FileMetadata` dataclass, readonly/hidden/executable toggles, octal-mode parsing.
+## When to reach for it
+
+- You write configuration, manifests, or deploy artifacts and cannot afford a half-written file after a crash.
+- You need to commit several file changes together — and roll them all back if one fails.
+- You need cross-process file locking that behaves the same on Linux, macOS, and Windows.
+- You want one toolkit for search, polling watch, archives, integrity checks, secure deletion, and permission/metadata handling.
+- You need a dependency-free, fully-typed library on Python 3.12+.
 
 ## Installation
 
