@@ -176,7 +176,9 @@ Developer documentation:
 
 ## Contributing
 
-Personal portfolio project. Issue reports and small PRs (typo fixes, doc improvements, additional tests for existing behavior) are welcome; larger changes may not be accepted to keep the library focused. Please open an issue first if you want to discuss a non-trivial change.
+This repository is maintained as a personal portfolio project. Pull requests are generally not accepted, but exceptional contributions may be considered.
+
+For bug reports and feature requests, please use [GitHub Issues](https://github.com/francescofavi/zerofilesystem/issues).
 
 ## License
 
