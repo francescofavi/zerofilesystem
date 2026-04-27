@@ -37,6 +37,8 @@ from zerofilesystem._platform import IS_LINUX, IS_MACOS, IS_UNIX, IS_WINDOWS, Pa
 from zerofilesystem.classes import (
     ArchiveError,
     ArchiveHandler,
+    ChangeDetector,
+    ChangeSummary,
     DirectoryOps,
     EventType,
     FileCleaner,
@@ -58,6 +60,7 @@ from zerofilesystem.classes import (
     IntegrityError,
     InvalidPathError,
     JsonHandler,
+    ManifestCache,
     PathUtils,
     PermissionDeniedError,
     SecureDeleteError,
@@ -194,7 +197,10 @@ __all__ = [
     "IS_UNIX",
     "Pathish",
     # Classes (for advanced usage)
+    "ChangeDetector",
+    "ChangeSummary",
     "Finder",
+    "ManifestCache",
     "Watcher",
     "WatchEvent",
     "EventType",

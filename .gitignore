@@ -19,7 +19,6 @@ htmlcov/
 # Keep tracked dotfiles/dotdirs (maintainer-only — excluded from PyPI sdist via pyproject)
 !.gitignore
 !.github/
-!.internal_docs/
 !.python-version
 !.pre-commit-config.yaml
 !.release-please-manifest.json

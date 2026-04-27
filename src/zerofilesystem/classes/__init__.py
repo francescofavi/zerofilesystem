@@ -1,6 +1,7 @@
 """Helper classes for file operations."""
 
 from zerofilesystem.classes.archive_handler import ArchiveHandler
+from zerofilesystem.classes.change_detector import ChangeDetector, ChangeSummary
 from zerofilesystem.classes.directory_ops import DirectoryOps
 from zerofilesystem.classes.exceptions import (
     ArchiveError,
@@ -21,6 +22,7 @@ from zerofilesystem.classes.files import FileCleaner, FileFinder, FileHasher, Fi
 from zerofilesystem.classes.finder import Finder
 from zerofilesystem.classes.integrity_checker import IntegrityChecker
 from zerofilesystem.classes.io import FileIO, FileUtils, GzipHandler, JsonHandler
+from zerofilesystem.classes.manifest_cache import ManifestCache
 from zerofilesystem.classes.path_utils import PathUtils
 from zerofilesystem.classes.secure_ops import SecureOps
 from zerofilesystem.classes.watcher import (
@@ -35,6 +37,9 @@ from zerofilesystem.classes.watcher import (
 WatchEventOld = WatchEvent
 
 __all__ = [
+    # Change detection
+    "ChangeDetector",
+    "ChangeSummary",
     # Core I/O
     "FileIO",
     "JsonHandler",
@@ -57,6 +62,7 @@ __all__ = [
     "DirectoryOps",
     # Integrity verification
     "IntegrityChecker",
+    "ManifestCache",
     # Transactions
     "FileTransaction",
     # Security
