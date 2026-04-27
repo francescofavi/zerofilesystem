@@ -71,9 +71,7 @@ def main() -> None:
 
         print(f"Sample project created at: {tmp_path}\n")
 
-        # =========================================================================
-        # BASIC PATTERN MATCHING
-        # =========================================================================
+        # Basic Pattern Matching
 
         print("=== Basic Pattern Matching ===\n")
 
@@ -85,9 +83,7 @@ def main() -> None:
         code_files = Finder(tmp_path).patterns("*.py", "*.json", "*.toml").find()
         print(f"Code + config files: {len(code_files)}")
 
-        # =========================================================================
-        # EXCLUSION PATTERNS
-        # =========================================================================
+        # Exclusion Patterns
 
         print("\n=== Exclusion Patterns ===\n")
 
@@ -107,9 +103,7 @@ def main() -> None:
         )
         print(f"\nClean files (no cache/git/hidden): {len(clean_files)}")
 
-        # =========================================================================
-        # SIZE FILTERING
-        # =========================================================================
+        # Size Filtering
 
         print("\n=== Size Filtering ===\n")
 
@@ -130,9 +124,7 @@ def main() -> None:
         for f in empty_files:
             print(f"  - {f.relative_to(tmp_path)}")
 
-        # =========================================================================
-        # DATE FILTERING
-        # =========================================================================
+        # Date Filtering
 
         print("\n=== Date Filtering ===\n")
 
@@ -148,9 +140,7 @@ def main() -> None:
         files_24h = Finder(tmp_path).modified_after(timedelta(hours=24)).find()
         print(f"Modified in last 24 hours: {len(files_24h)}")
 
-        # =========================================================================
-        # ATTRIBUTE FILTERING
-        # =========================================================================
+        # Attribute Filtering
 
         print("\n=== Attribute Filtering ===\n")
 
@@ -164,9 +154,7 @@ def main() -> None:
         visible_nonempty = Finder(tmp_path).not_hidden().not_empty().find()
         print(f"\nVisible, non-empty files: {len(visible_nonempty)}")
 
-        # =========================================================================
-        # TYPE FILTERING
-        # =========================================================================
+        # Type Filtering
 
         print("\n=== Type Filtering ===\n")
 
@@ -176,10 +164,7 @@ def main() -> None:
         for d in dirs:
             print(f"  - {d.relative_to(tmp_path)}")
 
-        # =========================================================================
-        # RECURSION AND DEPTH
-        # =========================================================================
-
+        # Recursion and depth
         print("\n=== Recursion and Depth ===\n")
 
         # Non-recursive (top level only)
@@ -192,9 +177,7 @@ def main() -> None:
         shallow = Finder(tmp_path).patterns("*.py").max_depth(2).find()
         print(f"\nPython files (max depth 2): {len(shallow)}")
 
-        # =========================================================================
-        # CUSTOM FILTERS
-        # =========================================================================
+        # Custom Filters
 
         print("\n=== Custom Filters ===\n")
 
@@ -214,9 +197,7 @@ def main() -> None:
         )
         print(f"\nPython files with long names and >500B: {len(special)}")
 
-        # =========================================================================
-        # EXECUTION METHODS
-        # =========================================================================
+        # Execution Methods
 
         print("\n=== Execution Methods ===\n")
 
@@ -240,9 +221,7 @@ def main() -> None:
         first_3 = Finder(tmp_path).patterns("*.py").limit(3).find()
         print(f"\nFirst 3 Python files: {[f.name for f in first_3]}")
 
-        # =========================================================================
-        # MEMORY-EFFICIENT ITERATION
-        # =========================================================================
+        # Memory-Efficient Iteration
 
         print("\n=== Memory-Efficient Iteration ===\n")
 
@@ -253,9 +232,7 @@ def main() -> None:
                 print("  ... (stopping early for demo)")
                 break
 
-        # =========================================================================
-        # CHAINED BUILDER EXAMPLE
-        # =========================================================================
+        # Chained Builder Example
 
         print("\n=== Complex Chained Query ===\n")
 

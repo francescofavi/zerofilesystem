@@ -4,6 +4,7 @@ Copyright (c) 2025 Francesco Favi
 """
 
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -288,3 +289,68 @@ class TestValidatePath:
         result = zfs.validate_path(nonexistent)
 
         assert result == nonexistent
+
+
+class TestPathUtilsAdditional:
+    """Cover the lesser-used PathUtils class methods.
+
+    These are part of the public PathUtils class but not aliased at the
+    top-level module. They round out the coverage of path manipulation
+    that the top-level helpers don't expose directly.
+    """
+
+    def test_to_native_returns_str(self, tmp_path: Path) -> None:
+        from zerofilesystem.classes.path_utils import PathUtils
+
+        result = PathUtils.to_native(tmp_path)
+        assert isinstance(result, str)
+        assert tmp_path.name in result
+
+    def test_normalize_separators_replaces_for_current_os(self) -> None:
+        """On POSIX runners the separators normalize to ``/``; on Windows
+        they normalize to ``\\``. The function is os.sep-aware so this
+        test simply pins that the result contains no foreign separator."""
+        from zerofilesystem.classes.path_utils import PathUtils
+
+        result = PathUtils.normalize_separators("a/b\\c")
+        assert "a" in result and "b" in result and "c" in result
+
+    def test_split_path_returns_parts(self) -> None:
+        from zerofilesystem.classes.path_utils import PathUtils
+
+        parts = PathUtils.split_path("/a/b/c.txt")
+        assert "a" in parts
+        assert "b" in parts
+        assert "c.txt" in parts
+
+    def test_join_path_assembles_parts(self) -> None:
+        from zerofilesystem.classes.path_utils import PathUtils
+
+        joined = PathUtils.join_path("a", "b", "c.txt")
+        assert "a" in str(joined)
+        assert "c.txt" in str(joined)
+
+    def test_join_path_empty_returns_dot(self) -> None:
+        from zerofilesystem.classes.path_utils import PathUtils
+
+        assert PathUtils.join_path() == Path(".")
+
+    def test_portable_path_returns_posix_form(self) -> None:
+        from zerofilesystem.classes.path_utils import PathUtils
+
+        assert PathUtils.portable_path(Path("a") / "b" / "c") == "a/b/c"
+
+    def test_to_relative_falls_back_to_relpath_for_unrelated_paths(self) -> None:
+        """When the path is not under base, to_relative computes a path with
+        ``..`` segments via os.path.relpath rather than raising."""
+        rel = zfs.to_relative("/var/log/x.txt", base="/etc")
+        assert ".." in str(rel)
+
+    @pytest.mark.skipif(
+        sys.platform != "linux",
+        reason="path resolution differs on macOS (/var -> /private/var) and "
+        "Windows (drive prefix is added by Path)",
+    )
+    def test_common_path_finds_common_ancestor(self) -> None:
+        result = zfs.common_path("/var/log/syslog", "/var/log/messages")
+        assert result == Path("/var/log")

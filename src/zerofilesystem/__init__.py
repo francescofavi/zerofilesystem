@@ -37,6 +37,8 @@ from zerofilesystem._platform import IS_LINUX, IS_MACOS, IS_UNIX, IS_WINDOWS, Pa
 from zerofilesystem.classes import (
     ArchiveError,
     ArchiveHandler,
+    ChangeDetector,
+    ChangeSummary,
     DirectoryOps,
     EventType,
     FileCleaner,
@@ -58,6 +60,7 @@ from zerofilesystem.classes import (
     IntegrityError,
     InvalidPathError,
     JsonHandler,
+    ManifestCache,
     PathUtils,
     PermissionDeniedError,
     SecureDeleteError,
@@ -73,76 +76,56 @@ __version__ = "0.1.3"
 __author__ = "Francesco Favi"
 __email__ = "14098835+francescofavi@users.noreply.github.com"
 
-# =============================================================================
-# BASIC I/O
-# =============================================================================
+# Basic I/O
 
 read_text = FileIO.read_text
 write_text = FileIO.write_text
 read_bytes = FileIO.read_bytes
 write_bytes = FileIO.write_bytes
 
-# =============================================================================
 # JSON
-# =============================================================================
 
 read_json = JsonHandler.read_json
 write_json = JsonHandler.write_json
 
-# =============================================================================
-# GZIP
-# =============================================================================
+# Gzip
 
 gzip_compress = GzipHandler.compress
 gzip_decompress = GzipHandler.decompress
 
-# =============================================================================
-# DISCOVERY
-# =============================================================================
+# Discovery
 
 find_files = FileFinder.find_files
 walk_files = FileFinder.walk_files
 is_hidden = FileFinder.is_hidden
 
-# =============================================================================
-# CLEANUP
-# =============================================================================
+# Cleanup
 
 delete_files = FileCleaner.delete_files
 delete_empty_dirs = FileCleaner.delete_empty_dirs
 
-# =============================================================================
-# SYNC
-# =============================================================================
+# Sync
 
 move_if_absent = FileSync.move_if_absent
 copy_if_newer = FileSync.copy_if_newer
 
-# =============================================================================
-# HASH
-# =============================================================================
+# Hash
 
 file_hash = FileHasher.file_hash
 
-# =============================================================================
-# META
-# =============================================================================
+# Meta
 
 ensure_dir = FileMeta.ensure_dir
 touch = FileMeta.touch
 file_size = FileMeta.file_size
 disk_usage = FileMeta.disk_usage
 
-# =============================================================================
-# UTILS
-# =============================================================================
+# Utils
 
 safe_filename = FileUtils.safe_filename
 atomic_write = FileUtils.atomic_write
 
-# =============================================================================
-# PATH UTILS
-# =============================================================================
+# Path Utils
 
 normalize_path = PathUtils.normalize
 to_absolute = PathUtils.to_absolute
@@ -153,9 +136,7 @@ is_subpath = PathUtils.is_subpath
 common_path = PathUtils.common_path
 validate_path = PathUtils.validate_path
 
-# =============================================================================
-# PERMISSIONS
-# =============================================================================
+# Permissions
 
 get_metadata = FilePermissions.get_metadata
 set_readonly = FilePermissions.set_readonly
@@ -167,9 +148,7 @@ set_timestamps = FilePermissions.set_timestamps
 mode_to_string = FilePermissions.mode_to_string
 string_to_mode = FilePermissions.string_to_mode
 
-# =============================================================================
-# DIRECTORY OPS
-# =============================================================================
+# Directory Ops
 
 copy_tree = DirectoryOps.copy_tree
 move_tree = DirectoryOps.move_tree
@@ -179,9 +158,7 @@ tree_size = DirectoryOps.tree_size
 tree_file_count = DirectoryOps.tree_file_count
 flatten_tree = DirectoryOps.flatten
 
-# =============================================================================
-# INTEGRITY
-# =============================================================================
+# Integrity
 
 directory_hash = IntegrityChecker.directory_hash
 create_manifest = IntegrityChecker.create_manifest
@@ -192,18 +169,14 @@ verify_file = IntegrityChecker.verify_file
 compare_directories = IntegrityChecker.compare_directories
 snapshot_hash = IntegrityChecker.snapshot_hash
 
-# =============================================================================
-# SECURE
-# =============================================================================
+# Secure
 
 secure_delete = SecureOps.secure_delete
 secure_delete_directory = SecureOps.secure_delete_directory
 private_directory = SecureOps.private_directory
 create_private_file = SecureOps.create_private_file
 
-# =============================================================================
-# ARCHIVE
-# =============================================================================
+# Archive
 
 create_tar = ArchiveHandler.create_tar
 create_zip = ArchiveHandler.create_zip
@@ -212,9 +185,7 @@ extract_zip = ArchiveHandler.extract_zip
 extract = ArchiveHandler.extract
 list_archive = ArchiveHandler.list_archive
 
-# =============================================================================
 # __all__
-# =============================================================================
 
 __all__ = [
     # Facade class
@@ -226,7 +197,10 @@ __all__ = [
     "IS_UNIX",
     "Pathish",
     # Classes (for advanced usage)
+    "ChangeDetector",
+    "ChangeSummary",
     "Finder",
+    "ManifestCache",
     "Watcher",
     "WatchEvent",
     "EventType",

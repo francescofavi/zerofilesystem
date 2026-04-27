@@ -18,9 +18,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
 
-        # =========================================================================
-        # BASIC TRANSACTION
-        # =========================================================================
+        # Basic Transaction
 
         print("=== Basic Transaction ===\n")
 
@@ -36,9 +34,7 @@ def main() -> None:
         print(f"File 1: {file1.read_text()}")
         print(f"File 2: {file2.read_text()}")
 
-        # =========================================================================
-        # AUTOMATIC ROLLBACK ON ERROR
-        # =========================================================================
+        # Automatic Rollback on Error
 
         print("\n=== Automatic Rollback on Error ===\n")
 
@@ -67,9 +63,7 @@ def main() -> None:
         print(f"  File 1: {rollback_file1.read_text()}")
         print(f"  File 2: {rollback_file2.read_text()}")
 
-        # =========================================================================
-        # CREATING NEW FILES
-        # =========================================================================
+        # Creating New Files
 
         print("\n=== Creating New Files in Transaction ===\n")
 
@@ -88,10 +82,7 @@ def main() -> None:
         print(f"File exists after rollback: {new_file.exists()}")
         print("New file was NOT created because transaction was rolled back!")
 
-        # =========================================================================
-        # EXPLICIT COMMIT AND ROLLBACK
-        # =========================================================================
-
+        # Explicit commit and rollback
         print("\n=== Explicit Commit ===\n")
 
         explicit_file = tmp_path / "explicit.txt"
@@ -117,9 +108,7 @@ def main() -> None:
 
         print(f"File exists after rollback: {explicit_file2.exists()}")
 
-        # =========================================================================
-        # FILE DELETION IN TRANSACTION
-        # =========================================================================
+        # File Deletion in Transaction
 
         print("\n=== File Deletion in Transaction ===\n")
 
@@ -140,9 +129,7 @@ def main() -> None:
         print(f"File exists after rollback: {to_delete.exists()}")
         print(f"Content restored: {to_delete.read_text()}")
 
-        # =========================================================================
-        # FILE COPY IN TRANSACTION
-        # =========================================================================
+        # File Copy in Transaction
 
         print("\n=== File Copy in Transaction ===\n")
 
@@ -157,9 +144,7 @@ def main() -> None:
         print(f"Destination: {dest.read_text()}")
         print("Files match:", source.read_text() == dest.read_text())
 
-        # =========================================================================
-        # COMPLEX MULTI-FILE OPERATION
-        # =========================================================================
+        # Complex Multi-File Operation
 
         print("\n=== Complex Multi-File Operation ===\n")
 

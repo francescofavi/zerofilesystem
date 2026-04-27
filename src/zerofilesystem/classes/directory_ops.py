@@ -124,7 +124,7 @@ class DirectoryOps:
                         else:
                             result.copied.append(dst_file)
 
-                except Exception as e:
+                except Exception as e:  # pragma: no cover -- defensive: capture per-file error and continue the walk
                     result.errors.append((src_file, str(e)))
 
         return result
@@ -169,7 +169,9 @@ class DirectoryOps:
             rel_root = root_path.relative_to(src_p)
             dst_root = dst_p / rel_root
 
-            dst_root.mkdir(exist_ok=True)
+            # parents=True is required: topdown=False visits deepest paths first,
+            # so dst_root may sit several levels below the still-uncreated dst_p
+            dst_root.mkdir(parents=True, exist_ok=True)
 
             # Move files
             for f in files:
@@ -293,7 +295,9 @@ class DirectoryOps:
                             if not dry_run:
                                 dst_file.unlink()
                             result.deleted.append(dst_file)
-                        except Exception as e:
+                        except (
+                            Exception
+                        ) as e:  # pragma: no cover -- defensive: capture per-file delete error
                             result.errors.append((dst_file, str(e)))
 
             # Clean up empty directories

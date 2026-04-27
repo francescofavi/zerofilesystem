@@ -123,9 +123,7 @@ def main() -> None:
         # Initialize manager
         manager = ConfigManager(config_dir)
 
-        # =====================================================================
-        # INITIAL CONFIGURATION
-        # =====================================================================
+        # Initial Configuration
 
         print("--- Initial Configuration ---\n")
 
@@ -137,9 +135,7 @@ def main() -> None:
         manager.save(config)
         print(f"\nConfig saved to: {manager.config_file}")
 
-        # =====================================================================
-        # UPDATE CONFIGURATION
-        # =====================================================================
+        # Update Configuration
 
         print("\n--- Update Configuration ---\n")
 
@@ -158,9 +154,7 @@ def main() -> None:
         print("Updated config:")
         print(json.dumps(updated, indent=2))
 
-        # =====================================================================
-        # MULTIPLE UPDATES (CREATES BACKUPS)
-        # =====================================================================
+        # Multiple Updates (Creates Backups)
 
         print("\n--- Multiple Updates ---\n")
 
@@ -177,9 +171,7 @@ def main() -> None:
         for backup in backups:
             print(f"  - {backup.name}")
 
-        # =====================================================================
-        # RESTORE FROM BACKUP
-        # =====================================================================
+        # Restore From Backup
 
         print("\n--- Restore from Backup ---\n")
 
@@ -198,9 +190,7 @@ def main() -> None:
             restored_config = manager.load()
             print(f"After restore: {restored_config.get('version')}")
 
-        # =====================================================================
-        # CONCURRENT ACCESS SIMULATION
-        # =====================================================================
+        # Concurrent Access Simulation
 
         print("\n--- Concurrent Access Protection ---\n")
 
@@ -226,9 +216,7 @@ def main() -> None:
         print(f"All workers completed: {len(results)} operations")
         print(f"Final config last accessed by: {manager.load().get('last_accessed_by')}")
 
-        # =====================================================================
-        # ARCHIVE BACKUPS
-        # =====================================================================
+        # Archive Backups
 
         print("\n--- Archive Backups ---\n")
 
