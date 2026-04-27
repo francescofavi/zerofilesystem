@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/francescofavi/zerofilesystem/main/logo.png" alt="ZeroFileSystem" width="200">
+</p>
+
 # ZeroFileSystem
 
 [![CI](https://github.com/francescofavi/zerofilesystem/actions/workflows/ci.yml/badge.svg)](https://github.com/francescofavi/zerofilesystem/actions/workflows/ci.yml)
