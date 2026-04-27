@@ -13,6 +13,7 @@ from __future__ import annotations
 import gzip
 import os
 import stat as stat_mod
+import sys
 import tarfile
 import time
 from datetime import datetime
@@ -150,6 +151,11 @@ def test_finder_writable_filter_excludes_readonly_files(tmp_path: Path) -> None:
         os.chmod(p, 0o644)
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Windows lacks the POSIX executable bit; chmod 0o644 still leaves "
+    "the file executable from the OS perspective",
+)
 def test_finder_executable_filter_excludes_non_executable(tmp_path: Path) -> None:
     p = tmp_path / "f.txt"
     p.write_text("x")
@@ -313,6 +319,10 @@ def test_file_utils_atomic_write_binary_path(tmp_path: Path) -> None:
 # Additional gap-closing batch
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Path('/x') renders as '\\\\x' on Windows — the test pins POSIX format",
+)
 def test_watch_event_str_format() -> None:
     """The dataclass exposes a custom __str__ — pin the format."""
     ev = WatchEvent(type=EventType.CREATED, path=Path("/x"), is_directory=False, timestamp=0.0)
@@ -428,6 +438,11 @@ def test_file_transaction_rollback_restores_deleted_file(tmp_path: Path) -> None
 # files.py edge cases
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="POSIX directory permissions don't apply on Windows — chmod 0o500 "
+    "doesn't prevent unlink",
+)
 def test_delete_files_handles_permission_denied_via_oserror_branch(tmp_path: Path) -> None:
     """Simulate a delete that the OS rejects — the function captures the
     OSError and reports the path under ``failed`` rather than raising."""

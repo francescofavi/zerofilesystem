@@ -4,6 +4,7 @@ Copyright (c) 2025 Francesco Favi
 """
 
 import os
+import sys
 from pathlib import Path
 
 import pytest
@@ -345,6 +346,11 @@ class TestPathUtilsAdditional:
         rel = zfs.to_relative("/var/log/x.txt", base="/etc")
         assert ".." in str(rel)
 
+    @pytest.mark.skipif(
+        sys.platform != "linux",
+        reason="path resolution differs on macOS (/var -> /private/var) and "
+        "Windows (drive prefix is added by Path)",
+    )
     def test_common_path_finds_common_ancestor(self) -> None:
         result = zfs.common_path("/var/log/syslog", "/var/log/messages")
         assert result == Path("/var/log")

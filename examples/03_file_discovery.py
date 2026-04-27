@@ -50,7 +50,10 @@ def create_sample_project(base: Path) -> None:
 
 def main() -> None:
     with tempfile.TemporaryDirectory() as tmp:
-        tmp_path = Path(tmp)
+        # resolve() so relative_to() matches what zfs.find_files returns on
+        # platforms where the temp dir uses symlinks (macOS /var -> /private/var)
+        # or short 8.3 paths (Windows RUNNER~1 vs runneradmin).
+        tmp_path = Path(tmp).resolve()
         create_sample_project(tmp_path)
 
         print(f"Sample project created at: {tmp_path}\n")

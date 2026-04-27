@@ -8,10 +8,15 @@ This example demonstrates:
 - Atomic JSON writes
 """
 
+import sys
 import tempfile
 from pathlib import Path
 
 import zerofilesystem as zfs
+
+# Force UTF-8 output so multilingual prints don't blow up on Windows cp1252.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
 def main() -> None:
