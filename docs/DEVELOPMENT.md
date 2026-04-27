@@ -70,7 +70,7 @@ Notes derived from `pyproject.toml`:
 
 - **ruff:** `target-version = "py312"`, `line-length = 100`, lint selection `E, F, W, I, N, UP, B, C4, SIM`, ignores `E501`.
 - **mypy:** `strict_optional`, `warn_return_any`, `warn_redundant_casts`, `warn_no_return`, `warn_unreachable`, `ignore_missing_imports`, `namespace_packages`, `explicit_package_bases`. `disallow_untyped_defs` and `disallow_incomplete_defs` are off (the codebase predates a strict-typing migration).
-- **bandit:** scans `src/`, skips `B101`, `B403`, `B110`, excludes `tests/`, `examples/`, `scripts/`, `check_quality.py`.
+- **bandit:** scans `src/`, skips `B101`, `B403`, `B110`, excludes `tests/`, `examples/`, `scripts/`.
 - **vulture:** scans `src/` with `min_confidence = 80`.
 
 ## 5. Pre-commit hooks

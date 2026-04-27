@@ -52,7 +52,6 @@ exclude = [
     "/.pre-commit-config.yaml",
     "/.python-version",
     "/.coverage",
-    "/check_quality.py",
     "/setup.bat",
     "/setup.sh",
     "/run.sh",
@@ -172,7 +171,6 @@ exclude_dirs = [
     "dist",
     "build",
 ]
-exclude = ["check_quality.py"]
 skips = ["B101", "B403", "B110"]
 
 [tool.vulture]
