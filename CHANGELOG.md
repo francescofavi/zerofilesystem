@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2](https://github.com/francescofavi/zerofilesystem/compare/v0.1.1...v0.1.2) (2026-04-27)
+
+
+### Documentation
+
+* add project logo to README ([655823c](https://github.com/francescofavi/zerofilesystem/commit/655823c25adcc2b95e97b6d93056144408eaf8a5))
+* **README:** standardize contributing policy ([#18](https://github.com/francescofavi/zerofilesystem/issues/18)) ([43a0910](https://github.com/francescofavi/zerofilesystem/commit/43a0910527247aba608191cfe38970d39815b872))
+
 ## [0.1.1](https://github.com/francescofavi/zerofilesystem/compare/v0.1.0...v0.1.1) (2026-03-30)
 
 
